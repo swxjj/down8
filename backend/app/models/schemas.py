@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional
+from typing import Any, List, Literal, Optional
 from pydantic import BaseModel, Field
 
 
@@ -66,11 +66,16 @@ class TaskStatus(BaseModel):
         "failed",
     ]
     percent: float = 0.0
+    progress: Optional[float] = None
     speed: Optional[str] = None
     eta: Optional[str] = None
     filename: Optional[str] = None
     file_size: Optional[int] = None
     error: Optional[str] = None
+
+    def model_post_init(self, __context: Any) -> None:
+        if self.progress is None:
+            self.progress = self.percent
 
 
 class DownloadInitResponse(BaseModel):

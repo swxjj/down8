@@ -147,8 +147,10 @@ async def get_task_events(task_id: str, request: Request):
         async for update in task_manager.subscribe(task_id):
             if await request.is_disconnected():
                 break
+            if "progress" not in update:
+                update["progress"] = update.get("percent", 0.0)
             yield {
-                "event": "progress",
+                "event": "message",
                 "data": json.dumps(update),
             }
 

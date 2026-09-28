@@ -134,7 +134,8 @@ export default function App() {
       status: 'connecting',
       status_text: 'Initiating download stream...',
       progress: 5,
-      speed: '0 MB/s',
+      percent: 5,
+      speed: 'Connecting...',
       eta: 'Calculating...',
       filename: `${mediaInfo.title || 'media'}.${options.media_type === 'audio' ? (options.audio_format || 'mp3') : 'mp4'}`,
       options,
@@ -164,6 +165,10 @@ export default function App() {
           setActiveTask((prev) => ({
             ...prev,
             ...progressData,
+            progress: progressData.percent ?? progressData.progress ?? prev.progress,
+            percent: progressData.percent ?? progressData.progress ?? prev.percent,
+            speed: progressData.speed || prev.speed,
+            eta: progressData.eta || prev.eta,
           }));
         },
         (completeData) => {
@@ -225,7 +230,8 @@ export default function App() {
       status: 'connecting',
       status_text: 'Preparing carousel package manifest...',
       progress: 8,
-      speed: '0 MB/s',
+      percent: 8,
+      speed: 'Preparing...',
       eta: '00:10',
       filename: `${(mediaInfo.title || 'Carousel_Media').replace(/[^a-zA-Z0-9_-]/g, '_')}_Bundle.zip`,
       options: { selected_ids, isZip: true },
@@ -251,6 +257,10 @@ export default function App() {
           setActiveTask((prev) => ({
             ...prev,
             ...progressData,
+            progress: progressData.percent ?? progressData.progress ?? prev.progress,
+            percent: progressData.percent ?? progressData.progress ?? prev.percent,
+            speed: progressData.speed || prev.speed,
+            eta: progressData.eta || prev.eta,
           }));
         },
         (completeData) => {

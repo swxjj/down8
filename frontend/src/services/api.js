@@ -174,36 +174,94 @@ export function subscribeToTaskEvents(taskId, onProgress, onComplete, onError) {
     return simulateMockTaskEvents(taskId, onProgress, onComplete);
   }
 
-  const eventSourceUrl = `${API_BASE_URL}/api/tasks/${taskId}/events`;
-  const eventSource = new EventSource(eventSourceUrl);
+  let isTerminated = false;
+  let pollTimer = null;
+  let eventSource = null;
 
-  eventSource.onmessage = (event) => {
-    try {
-      const data = JSON.parse(event.data);
-      if (data.status === 'completed') {
-        onComplete(data);
+  const handlePayload = (data) => {
+    if (isTerminated || !data) return;
+
+    const normalized = {
+      ...data,
+      progress: data.percent ?? data.progress ?? 0,
+      percent: data.percent ?? data.progress ?? 0,
+      speed: data.speed || 'Streaming...',
+      eta: data.eta || 'Calculating...',
+    };
+
+    if (data.status === 'completed') {
+      isTerminated = true;
+      if (pollTimer) clearInterval(pollTimer);
+      if (eventSource) {
         eventSource.close();
-      } else if (data.status === 'failed' || data.status === 'error') {
-        onError(data.error || 'Download failed');
-        eventSource.close();
-      } else {
-        onProgress(data);
+        eventSource = null;
       }
+      onComplete(normalized);
+    } else if (data.status === 'failed' || data.status === 'error') {
+      isTerminated = true;
+      if (pollTimer) clearInterval(pollTimer);
+      if (eventSource) {
+        eventSource.close();
+        eventSource = null;
+      }
+      onError(data.error || 'Download failed');
+    } else {
+      onProgress(normalized);
+    }
+  };
+
+  const onIncomingEvent = (event) => {
+    try {
+      if (!event.data) return;
+      const data = JSON.parse(event.data);
+      handlePayload(data);
     } catch (err) {
       console.error('Failed to parse SSE event data', err);
     }
   };
 
-  eventSource.onerror = (err) => {
-    console.error('SSE connection error:', err);
-    // Don't close immediately unless connection failed completely
-    if (eventSource.readyState === EventSource.CLOSED) {
-      onError('Connection to download task stream was lost.');
+  const eventSourceUrl = `${API_BASE_URL}/api/tasks/${taskId}/events`;
+  try {
+    eventSource = new EventSource(eventSourceUrl);
+    eventSource.onmessage = onIncomingEvent;
+    eventSource.addEventListener('message', onIncomingEvent);
+    eventSource.addEventListener('progress', onIncomingEvent);
+    eventSource.addEventListener('status', onIncomingEvent);
+
+    eventSource.onerror = (err) => {
+      // Don't terminate immediately, let backup polling take over seamlessly
+      if (eventSource && eventSource.readyState === EventSource.CLOSED) {
+        eventSource.close();
+        eventSource = null;
+      }
+    };
+  } catch (e) {
+    console.warn('EventSource initialization fallback to polling:', e);
+  }
+
+  // Backup polling every 600ms to guarantee speed/progress updates are never missed
+  pollTimer = setInterval(async () => {
+    if (isTerminated) {
+      clearInterval(pollTimer);
+      return;
     }
-  };
+    try {
+      const response = await client.get(`/api/tasks/${taskId}`);
+      if (response && response.data) {
+        handlePayload(response.data);
+      }
+    } catch (err) {
+      // Ignore polling hiccups while task runs
+    }
+  }, 600);
 
   return () => {
-    eventSource.close();
+    isTerminated = true;
+    if (pollTimer) clearInterval(pollTimer);
+    if (eventSource) {
+      eventSource.close();
+      eventSource = null;
+    }
   };
 }
 

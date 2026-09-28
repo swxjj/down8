@@ -56,14 +56,22 @@ export default function ProgressCard({
     title,
     status = 'connecting',
     status_text = 'Initializing connection...',
-    progress = 0,
-    speed = '0 MB/s',
-    eta = '--:--',
     filename,
     file_size,
     error,
     isZip = false,
+    eta = '--:--',
   } = task;
+
+  const displayProgress = task.percent ?? task.progress ?? 0;
+  const displaySpeed = (() => {
+    if (task.speed && task.speed !== '0 MB/s') return task.speed;
+    if (status === 'muxing') return 'Muxing streams...';
+    if (status === 'packaging') return 'Packaging ZIP...';
+    if (status === 'downloading') return 'Streaming chunks...';
+    if (status === 'connecting' || status === 'queued') return 'Connecting...';
+    return task.speed || '0 MB/s';
+  })();
 
   const isCompleted = status === 'completed';
   const isFailed = status === 'failed' || status === 'error';
@@ -173,10 +181,10 @@ export default function ProgressCard({
         <div className="mt-5 space-y-2 relative z-10">
           <div className="flex items-center justify-between text-xs font-mono">
             <div className="flex items-center space-x-2">
-              <span className="font-extrabold text-white text-sm">{Math.min(100, Math.round(progress * 10) / 10)}%</span>
+              <span className="font-extrabold text-white text-sm">{Math.min(100, Math.round(displayProgress * 10) / 10)}%</span>
               {!isCompleted && !isFailed && (
                 <span className="text-slate-400 font-sans">
-                  • Speed: <strong className="text-brand-300 font-mono">{speed}</strong>
+                  • Speed: <strong className="text-brand-300 font-mono">{displaySpeed}</strong>
                 </span>
               )}
             </div>
@@ -201,7 +209,7 @@ export default function ProgressCard({
                   ? 'bg-red-500'
                   : 'bg-gradient-to-r from-brand-600 via-indigo-500 to-accent-violet shadow-glow-brand'
               }`}
-              style={{ width: `${Math.max(5, Math.min(100, progress))}%` }}
+              style={{ width: `${Math.max(5, Math.min(100, displayProgress))}%` }}
             >
               {/* Shimmer animation bar */}
               {!isCompleted && !isFailed && (

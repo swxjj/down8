@@ -23,12 +23,14 @@ async def download_media(task_id: str, request: DownloadRequest):
         async def progress_listener(payload: Dict[str, Any]):
             status = payload.get("status")
             if status == "downloading":
+                speed_text = payload.get("speed") or "Streaming..."
                 await task_manager.update_task(
                     task_id,
                     status="downloading",
                     percent=payload.get("percent", 0.0),
-                    speed=payload.get("speed"),
-                    eta=payload.get("eta"),
+                    progress=payload.get("percent", 0.0),
+                    speed=speed_text,
+                    eta=payload.get("eta") or "Calculating...",
                     filename=payload.get("filename"),
                     file_size=payload.get("total_bytes"),
                 )
@@ -37,8 +39,9 @@ async def download_media(task_id: str, request: DownloadRequest):
                     task_id,
                     status="muxing",
                     percent=payload.get("percent", 98.0),
-                    speed=None,
-                    eta=None,
+                    progress=payload.get("percent", 98.0),
+                    speed="Muxing with FFmpeg...",
+                    eta="Finishing...",
                 )
 
         try:
@@ -53,10 +56,11 @@ async def download_media(task_id: str, request: DownloadRequest):
                 file_path=target_file,
                 status="completed",
                 percent=100.0,
+                progress=100.0,
                 filename=target_file.name,
                 file_size=file_size,
-                speed=None,
-                eta=None,
+                speed="Complete",
+                eta="00:00",
             )
         except Exception as e:
             logger.error(f"Download task {task_id} failed: {e}", exc_info=True)

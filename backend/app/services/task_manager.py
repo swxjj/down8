@@ -39,8 +39,14 @@ class TaskManager:
 
             data = task.model_dump()
             for key, val in kwargs.items():
-                if key in data and val is not None:
+                if val is not None:
                     data[key] = val
+
+            # Keep percent and progress synchronized
+            if "percent" in kwargs and "progress" not in kwargs:
+                data["progress"] = kwargs["percent"]
+            elif "progress" in kwargs and "percent" not in kwargs:
+                data["percent"] = kwargs["progress"]
 
             updated_task = TaskStatus(**data)
             self._tasks[task_id] = updated_task

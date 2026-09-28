@@ -7,6 +7,7 @@ import asyncio
 import logging
 from pathlib import Path
 import re
+import time
 from typing import Any, Callable, Dict, Optional
 import yt_dlp
 from yt_dlp.utils import DownloadError
@@ -113,6 +114,12 @@ class YtDlpService:
                 except Exception as cb_err:
                     logger.debug(f"Progress callback exception: {cb_err}")
 
+        speed_tracker = {
+            "last_time": time.time(),
+            "last_bytes": 0,
+            "current_speed": "Streaming...",
+        }
+
         def progress_hook(d: Dict[str, Any]):
             status = d.get("status")
             if status == "downloading":
@@ -120,10 +127,36 @@ class YtDlpService:
                 total = d.get("total_bytes") or d.get("total_bytes_estimate", 0)
                 pct = round((downloaded / total * 100.0), 1) if total else 0.0
 
+                now = time.time()
                 speed_val = d.get("speed")
-                speed_str = _format_speed(speed_val) or d.get("_speed_str")
+                raw_speed_str = d.get("_speed_str")
+                if raw_speed_str:
+                    raw_speed_str = re.sub(r'\x1b\[[0-9;]*m', '', str(raw_speed_str)).strip()
+
+                speed_str = _format_speed(speed_val) or raw_speed_str
+
+                # Fallback delta speed calculation if yt-dlp does not report speed (e.g. HLS/fragmented)
+                if not speed_str or speed_str in ("---b/s", "0.0 B/s", "0 B/s"):
+                    delta_t = now - speed_tracker["last_time"]
+                    delta_b = downloaded - speed_tracker["last_bytes"]
+                    if delta_t >= 0.25 and delta_b > 0:
+                        calc_speed = delta_b / delta_t
+                        speed_str = _format_speed(calc_speed)
+                        speed_tracker["last_time"] = now
+                        speed_tracker["last_bytes"] = downloaded
+                        speed_tracker["current_speed"] = speed_str
+                    else:
+                        speed_str = speed_tracker["current_speed"]
+                else:
+                    speed_tracker["last_time"] = now
+                    speed_tracker["last_bytes"] = downloaded
+                    speed_tracker["current_speed"] = speed_str
+
                 eta_val = d.get("eta")
-                eta_str = _format_eta(eta_val) or d.get("_eta_str")
+                raw_eta_str = d.get("_eta_str")
+                if raw_eta_str:
+                    raw_eta_str = re.sub(r'\x1b\[[0-9;]*m', '', str(raw_eta_str)).strip()
+                eta_str = _format_eta(eta_val) or raw_eta_str
 
                 raw_filename = d.get("filename")
                 clean_name = Path(raw_filename).name if raw_filename else None
@@ -132,8 +165,8 @@ class YtDlpService:
                     "task_id": task_id,
                     "status": "downloading",
                     "percent": pct,
-                    "speed": speed_str,
-                    "eta": eta_str,
+                    "speed": speed_str or "Streaming...",
+                    "eta": eta_str or "Calculating...",
                     "downloaded_bytes": downloaded,
                     "total_bytes": total or downloaded,
                     "filename": clean_name,
@@ -143,8 +176,8 @@ class YtDlpService:
                     "task_id": task_id,
                     "status": "muxing",
                     "percent": 98.0,
-                    "speed": None,
-                    "eta": None,
+                    "speed": "Muxing with FFmpeg...",
+                    "eta": "Finishing...",
                 })
 
         def postprocessor_hook(d: Dict[str, Any]):
@@ -155,8 +188,8 @@ class YtDlpService:
                     "task_id": task_id,
                     "status": "muxing",
                     "percent": 98.0,
-                    "speed": None,
-                    "eta": None,
+                    "speed": "Muxing with FFmpeg...",
+                    "eta": "Finishing...",
                 })
 
         ydl_opts.setdefault("progress_hooks", []).append(progress_hook)
