@@ -5,82 +5,683 @@
 @layer base {
   :root {
     color-scheme: dark;
-    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --font-heading: 'Outfit', 'Inter', sans-serif;
+    --font-sans: 'Montserrat', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', Consolas, monospace;
+  }
+
+  html, body {
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    overflow: hidden !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  html::-webkit-scrollbar, body::-webkit-scrollbar {
+    display: none;
   }
 
   body {
     font-family: var(--font-sans);
-    background-color: #080c14;
-    color: #e2e8f0;
-    overflow-x: hidden;
+    background-color: #0e0e11;
+    color: #ededed;
+    letter-spacing: -0.01em;
+    font-weight: 400;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading);
+    font-family: var(--font-sans);
+    font-weight: 500;
+    color: #ededed;
+    letter-spacing: -0.02em;
   }
 }
 
-/* Glassmorphism and Glow Utilities */
 @layer components {
-  .glass-card {
-    background: rgba(15, 23, 42, 0.72);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+  /* Dark Surface Card */
+  .paper-card, .tactile-panel, .glass-card {
+    background: #16161a;
+    border: 1px solid #27272e;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    color: #ededed;
   }
 
-  .glass-card-hover {
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Low-elevation Ghost Button */
+  .ghost-btn {
+    background: #1c1c22;
+    color: #a1a1aa;
+    border: 1px solid #27272e;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 400;
+    transition: all 0.15s ease;
+  }
+  .ghost-btn:hover {
+    color: #ededed;
+    border-color: #3f3f46;
+    background: #27272e;
   }
 
-  .glass-card-hover:hover {
-    background: rgba(22, 33, 58, 0.85);
-    border-color: rgba(99, 102, 241, 0.35);
-    box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.6), 0 0 20px -3px rgba(99, 102, 241, 0.25);
+  /* High-emphasis Action Button */
+  .ink-btn, .btn-tactile {
+    background: #ededed;
+    color: #0e0e11;
+    border: none;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: opacity 0.12s ease, transform 0.08s ease;
+  }
+  .ink-btn:hover, .btn-tactile:hover {
+    background: #ffffff;
+    opacity: 0.96;
+  }
+  .ink-btn:active, .btn-tactile:active {
+    transform: scale(0.96);
   }
 
-  .glass-pill {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+  /* Pill Chip */
+  .pill-chip, .glass-pill {
+    background: #16161a;
+    color: #a1a1aa;
+    border: 1px solid #27272e;
+    border-radius: 9999px;
+    font-size: 13px;
+    font-weight: 400;
+    transition: all 0.15s ease;
+  }
+  .pill-chip:hover {
+    color: #ededed;
+    border-color: #3f3f46;
+  }
+  .pill-chip-active {
+    background: #27272e;
+    color: #ededed;
+    border-color: #ededed;
   }
 
-  .gradient-border {
-    position: relative;
-    border-radius: 1rem;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.6), rgba(168, 85, 247, 0.4), rgba(16, 185, 129, 0.3));
-    padding: 1px;
-  }
-
-  .glow-text {
-    text-shadow: 0 0 20px rgba(129, 140, 248, 0.45);
+  /* Monospace Telemetry */
+  .tabular-nums {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
   }
 }
 
-/* Custom Scrollbar */
+/* Dark Subtle Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: #0e0e11;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 9999px;
-  border: 2px solid #090d16;
+  background: #27272e;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #3f3f46;
 }
 
-/* Range input styling */
-input[type="range"] {
-  accent-color: #6366f1;
+/* ═══════════════════════════════════════════════════════════
+   BENCHO DESIGN SYSTEM COMPONENTS & SURFACES
+   ═══════════════════════════════════════════════════════════ */
+
+/* ══ Label input ═══════════════════════════════════════════
+   lab/LabelInput.tsx. Positioned at the root for the canvas
+   halo — see the note on .gen. */
+.lbi {
+  --font-ui: 'Montserrat', sans-serif;
+  --ink: #ededed;
+  --ink-rgb: 237, 237, 237;
+  --ink-3: #a1a1aa;
+  --ink-4: #71717a;
+  --fill-on: #ededed;
+  position: relative;
+  font-family: var(--font-ui);
+  display: grid;
+  place-items: center;
+  /* room above the field for the lifted label */
+  padding-top: 10px;
 }
+
+/* no fill: the field is only its outline */
+.lbi-box {
+  position: relative;
+  background: transparent;
+  cursor: text;
+}
+
+/* ── the outline ────────────────────────────────────────────
+   Always whole. At rest a hairline of grey; focused, the ink
+   at a hair heavier; left filled, a grey a step darker than
+   rest. The gap across the top is the only part that moves. */
+.lbi-ring {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.lbi-ring path {
+  fill: none;
+  stroke: rgba(var(--ink-rgb), 0.18);
+  stroke-width: 1;
+  stroke-linecap: butt;
+  transition: stroke 240ms ease, stroke-width 240ms ease;
+}
+
+.lbi[data-focus="true"] .lbi-ring path {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.lbi[data-filled="true"]:not([data-focus="true"]) .lbi-ring path {
+  stroke: rgba(var(--ink-rgb), 0.3);
+}
+
+/* the gap: whole at rest, parting from its middle when the
+   label lifts. The dash is longer than the path so offset 0
+   is the whole line and -1 is none of it. */
+.lbi-gap {
+  stroke-dasharray: 1 2;
+  stroke-dashoffset: 0;
+  transition: stroke 240ms ease, stroke-width 240ms ease,
+    stroke-dashoffset 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lbi[data-up="true"] .lbi-gap { 
+  stroke-dashoffset: -1; 
+  opacity: 0;
+  transition: opacity 200ms ease, stroke-dashoffset 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── the label ──────────────────────────────────────────────
+   Its placeholder self in the middle of the field, and its
+   lifted self centred on the top edge — the second is the
+   first moved up by half the field and scaled from its left. */
+.lbi-label {
+  position: absolute;
+  left: var(--lbi-x);
+  top: 50%;
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: -0.005em;
+  white-space: pre;
+  color: var(--ink-4);
+  transform-origin: left center;
+  transform: translateY(-50%);
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1), color 200ms ease;
+  cursor: text;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.lbi[data-up="true"] .lbi-label {
+  transform: translateY(-50%) translateY(-26px) scale(0.78);
+  color: var(--ink-3);
+  background-color: #0e0e11;
+  padding: 0 6px;
+  border-radius: 3px;
+  z-index: 2;
+}
+
+.lbi[data-focus="true"] .lbi-label { color: var(--fill-on, var(--ink)); }
+
+.lbi-label span { display: inline-block; }
+
+/* the hop: each letter lifts a hair and settles, one after the
+   next, so the word ripples as it rises */
+.lbi[data-focus="true"] .lbi-label span {
+  animation: lbi-hop 460ms cubic-bezier(0.3, 0.7, 0.3, 1) both;
+  animation-delay: calc(var(--i) * 24ms);
+}
+
+.lbi-field {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0 0 0 var(--lbi-x);
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  letter-spacing: -0.005em;
+  color: var(--fill-on, var(--ink));
+  outline: none;
+}
+
+/* the reveal: the text passes through a soft blur rather than
+   snapping between dots and letters. Two names so a second
+   press restarts it. */
+.lbi-field[data-flip="1"] { animation: lbi-flip-a 260ms ease-out; }
+
+.lbi-field[data-flip="0"] { animation: lbi-flip-b 260ms ease-out; }
+
+.lbi-eye {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  width: 30px;
+  height: 30px;
+  margin-top: -15px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-4);
+  cursor: pointer;
+  transition: color 160ms ease, scale 130ms cubic-bezier(0.3, 0.9, 0.4, 1);
+}
+
+.lbi-eye:hover { color: var(--fill-on, var(--ink)); }
+
+.lbi-eye:active { scale: 0.9; }
+
+/* the two icons in one place, trading places */
+.lbi-eye svg {
+  grid-area: 1 / 1;
+  transition: opacity 200ms ease, scale 260ms cubic-bezier(0.22, 1, 0.36, 1), filter 200ms ease;
+}
+
+.lbi-eye svg:last-child { opacity: 0; scale: 0.7; filter: blur(2px); }
+
+.lbi-eye[data-show="true"] svg:first-child { opacity: 0; scale: 0.7; filter: blur(2px); }
+
+.lbi-eye[data-show="true"] svg:last-child { opacity: 1; scale: 1; filter: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lbi-ring path,
+  .lbi-gap,
+  .lbi-label { transition-duration: 1ms; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lbi[data-focus="true"] .lbi-label span,
+  .lbi-field { animation: none; }
+}
+
+@keyframes lbi-hop {
+  0% { transform: translateY(0); }
+  38% { transform: translateY(-3px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes lbi-flip-a { from { filter: blur(3px); opacity: 0.5; } }
+
+@keyframes lbi-flip-b { from { filter: blur(3px); opacity: 0.5; } }
+
+
+/* ── glass navigation ──────────────────────────────────────
+   Same recipe as .gcard: 60% white, 2px frost, refraction,
+   lit inner edge. Shapes differ, the material does not. */
+
+/* The bare pane. Same recipe as .gnav and .gdock, with no
+   layout of its own — for components that are just a surface
+   and want to arrange themselves. A card with a title in one
+   corner and a chip in the other is a house style, not a
+   requirement, and most things do not need either. */
+.gpane, .gnav, .gdock {
+  position: relative;
+  background: var(--pane, #16161a);
+  -webkit-backdrop-filter:
+    blur(var(--g-blur, 2px)) saturate(var(--g-sat, 150%)) brightness(var(--g-bright, 100%));
+  backdrop-filter:
+    blur(var(--g-blur, 2px)) saturate(var(--g-sat, 150%)) brightness(var(--g-bright, 100%));
+  isolation: isolate;
+  color: var(--ink, #ededed);
+}
+
+.gpane::before, .gnav::before, .gdock::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  /* transparent unless Stroke says otherwise — see the
+     stroke block below */
+  border: 1px solid transparent;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* ── flat panes ────────────────────────────────────────────
+   Set data-surface="flat" on any ancestor and every glass
+   surface under it becomes a solid fill with a hairline. The
+   inner buttons already sit on rgba(var(--ink-rgb), 0.05)
+   with no border, which is what flat wants anyway, so they
+   need nothing.
+
+   The frost is switched off at the element rather than through
+   a token. A var() holding a url() filter cannot be validated
+   at parse time, so the browser would treat it as invalid at
+   computed-value time and drop the property outright — which
+   breaks the two-declaration fallback the glass depends on. */
+
+/* ══ stroke ═════════════════════════════════════════════════
+   Whether a component draws a hairline round itself. OFF by
+   default, which is the change: every glass surface carried
+   one unconditionally, and a grey line round everything makes
+   a wall of components look like a wall of boxes rather than
+   a wall of things.
+
+   The line is not load-bearing. A flat pane is a fill against
+   a different fill and reads on its own; the ring was there
+   to sharpen an edge that was already there.
+
+   Placed ABOVE the glass rules on purpose. Glass draws its
+   own lit rim, and that rim is the material rather than a
+   stroke — it is what gives a pane thickness. So glass wins
+   the border wherever the two meet, and Stroke governs the
+   drawn line that flat surfaces would otherwise have. */
+[data-stroke="on"] .lab::before,
+[data-stroke="on"] .gcard::before,
+[data-stroke="on"] .gpane::before,
+[data-stroke="on"] .gnav::before,
+[data-stroke="on"] .gdock::before,
+/* the playful blocks. None of them is glass, so none has a
+   lit rim for the stroke to lose to — the hairline is the
+   only edge they can have, and it is the whole of what this
+   control does for them. */
+[data-stroke="on"] .esc-btn::before,
+[data-stroke="on"] .slo-track::before,
+[data-stroke="on"] .sek-skin::before {
+  border-color: var(--pane-edge, #2e2e38);
+}
+
+/* ── the rim ─────────────────────────────────────────────────
+   Every glass surface already drew a 1px ring in one flat
+   colour. A flat rim is the single clearest tell that a thing
+   is a rectangle with a border rather than a pane with
+   thickness: real edges are lit unevenly, and evenly lit ones
+   read as ink.
+
+   So the ring becomes a gradient — bright at the corner
+   facing the light, almost nothing along the sides that run
+   edge-on to it, and a second weaker catch at the far corner
+   where the light has come through the pane and out again.
+
+   Painting a gradient in a border needs the border box filled
+   and the padding box punched out of it, which is what the
+   two masks do: one covers the whole element, one covers only
+   the inside, and compositing them apart leaves the rim. It
+   is the only way to get a gradient into a border without a
+   second element to draw it on.
+
+   Only under glass. Flat keeps its honest hairline, which is
+   what a solid pane should have. */
+[data-surface="glass"] .lab::before,
+[data-surface="glass"] .gcard::before,
+[data-surface="glass"] .cmd::before,
+[data-surface="glass"] .gpane::before,
+[data-surface="glass"] .gnav::before,
+[data-surface="glass"] .gdock::before {
+  border-color: transparent;
+  background:
+    linear-gradient(
+      142deg,
+      rgba(255, 255, 255, var(--g-edge-hi, 0.15)) 0%,
+      rgba(255, 255, 255, var(--g-edge-lo, 0.05)) 26%,
+      rgba(255, 255, 255, var(--g-edge-lo, 0.05)) 62%,
+      rgba(255, 255, 255, var(--g-edge-far, 0.1)) 100%
+    ) border-box;
+  -webkit-mask:
+    linear-gradient(#000 0 0) padding-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) padding-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+/* ── thickness ───────────────────────────────────────────────
+   Three marks, and between them they are the difference
+   between a pane and a wash.
+
+   The lit line along the top is where light enters the edge of
+   a real sheet. The ring is the sheet's own thickness seen
+   from straight on. The shadow underneath says the pane is
+   ABOVE the page rather than painted onto it — which is the
+   one thing a backdrop-filter alone can never say, because a
+   filter has no depth.
+
+   All three ride on --glass and are gone at zero, where the
+   fallbacks take over and the surface is flat. */
+[data-surface="glass"] .lab,
+[data-surface="glass"] .gcard,
+[data-surface="glass"] .cmd,
+[data-surface="glass"] .gpane,
+[data-surface="glass"] .gnav,
+[data-surface="glass"] .gdock {
+  box-shadow: var(--g-shadow,
+    /* the top face, catching light through the thickness of
+       the pane — inside the rim, not on it */
+    inset 0 1px 0 rgba(255, 255, 255, var(--g-spec, 0.08)),
+    /* And what it casts on the page below — wide and soft
+       rather than tight and close. It is a different claim
+       about how far the pane floats, and the softer one is
+       what reads as a sheet resting above the page instead of
+       a card stuck to it. */
+    0 10px 40px rgba(var(--shadow-rgb, 0, 0, 0), var(--g-lift, 0.35)));
+}
+
+/* .gpane paints the fill and the edge. What is left here is
+   only the drop shadow, which the pane does not carry — a
+   stack needs it or the three cards read as one sheet. */
+.deck-card {
+  position: absolute;
+  left: 0; right: 0;
+  height: 248px;
+  /* the wall's gap — see .lab */
+  padding: 12px;
+  /* nothing to lay out any more — the one child centres itself */
+  display: block;
+  border-radius: var(--deck-r, 20px);
+  box-shadow:
+    0 1px 2px rgba(var(--shadow-rgb, 0, 0, 0), 0.05),
+    0 10px 26px rgba(var(--shadow-rgb, 0, 0, 0), 0.09);
+  touch-action: none;
+  will-change: transform;
+  transform-origin: 50% 60%;
+  /* the resting stack is CSS, keyed off depth. --pull is how
+     far the top card has been dragged, so the ones behind rise
+     to meet the gap as it clears them. */
+  transform:
+    translate3d(0, calc(var(--depth, 0) * 13px * (1 - var(--pull, 0) * 0.55)), 0)
+    scale(calc(1 - var(--depth, 0) * 0.045 + var(--pull, 0) * var(--depth, 0) * 0.026));
+  transition:
+    transform 560ms cubic-bezier(0.24, 1.34, 0.38, 1),
+    opacity 280ms ease;
+}
+
+/* ── 4 · confirm in place ────────────────────────────────── */
+.say-well {
+  --font-ui: 'Montserrat', sans-serif;
+  --ink: #ededed;
+  --ink-rgb: 237, 237, 237;
+  --ink-3: #a1a1aa;
+  --fill-on: #ededed;
+  --fill-slab: #1c1c22;
+  --pane: #16161a;
+  --pane-edge: #2e2e38;
+  --pick: #ededed;
+  --pick-rgb: 237, 237, 237;
+  --shadow-rgb: 0, 0, 0;
+  position: relative;
+  width: 260px;
+  height: 96px;
+}
+
+.say-well.compact {
+  height: 44px;
+}
+
+.say-well.compact .say-body,
+.say-well.compact .say-face,
+.say-well.compact .say-merged {
+  top: 0;
+}
+
+.say-well[data-disabled="true"] .say-body {
+  opacity: 0.45;
+}
+
+.say-well[data-disabled="true"] .say-face {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── the surface: one pill, sprung between two widths ────── */
+.say-body {
+  --font-ui: 'Montserrat', sans-serif;
+  --ink: #ededed;
+  --ink-rgb: 237, 237, 237;
+  --ink-3: #a1a1aa;
+  --fill-on: #ededed;
+  --fill-slab: #1c1c22;
+  --pane: #16161a;
+  --pane-edge: #2e2e38;
+  --pick: #ededed;
+  --pick-rgb: 237, 237, 237;
+  --shadow-rgb: 0, 0, 0;
+  position: absolute;
+  top: 26px;
+  height: 44px;
+  border-radius: var(--say-r, 999px);
+  background: var(--fill-slab, var(--pane));
+  border: 1px solid var(--pane-edge, #2e2e38);
+  transition: scale 180ms cubic-bezier(0.3, 0.9, 0.4, 1);
+}
+
+/* the resting pill answers a hover by giving a little, never by
+   changing colour; the words and the surfaces give together */
+.say-well[data-phase="idle"]:has(.say-face:hover) .say-body,
+.say-well[data-phase="idle"]:has(.say-face:hover) .say-face { scale: 0.97; }
+
+.say-well[data-phase="idle"]:has(.say-face:active) .say-body,
+.say-well[data-phase="idle"]:has(.say-face:active) .say-face { scale: 0.94; }
+
+/* ── the words, on top of the pill ────────────────────────── */
+.say-face {
+  --font-ui: 'Montserrat', sans-serif;
+  --ink: #ededed;
+  --ink-rgb: 237, 237, 237;
+  --ink-3: #a1a1aa;
+  --fill-on: #ededed;
+  --fill-slab: #1c1c22;
+  --pane: #16161a;
+  --pane-edge: #2e2e38;
+  --pick: #ededed;
+  --pick-rgb: 237, 237, 237;
+  --shadow-rgb: 0, 0, 0;
+  position: absolute;
+  top: 26px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--say-r, 999px);
+  background: transparent;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--fill-on, var(--ink));
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 160ms ease, scale 180ms cubic-bezier(0.3, 0.9, 0.4, 1);
+}
+
+/* deleted, and the undo that is on offer: one wide pill again */
+.say-merged {
+  position: absolute;
+  top: 26px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding-right: 4px;
+  border-radius: var(--say-r, 999px);
+  overflow: hidden;
+}
+
+.say-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 14px;
+  font-size: 13px;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.say-undo {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 13px;
+  border-radius: 999px;
+  margin-left: auto;
+  border: 0;
+  /* the canvas's own undo: the selection blue, no pad of its own,
+     a blue wash under the pointer — one "undo" on the site, not
+     two that happen to say the same word */
+  background: transparent;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--pick);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 140ms ease;
+}
+
+.say-undo:hover { background: rgba(var(--pick-rgb), 0.12); }
+
+/* how long undo is still on offer */
+.say-fuse {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--pick);
+  animation: say-burn linear forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fan-opt, .fan-core, .say-body, .step-pill { transition-duration: 1ms; }
+}
+
+/* ── a flat rim, for comparison ──────────────────────────────
+   Reverts the graded rim to one colour all the way round —
+   which is what almost every published glass snippet does,
+   Apple's own included. It is here so the two can be judged
+   against each other on the same ground rather than taken on
+   trust, and it applies only inside a test board. */
+.gtry[data-rim="flat"] .lab::before,
+.gtry[data-rim="flat"] .gcard::before,
+.gtry[data-rim="flat"] .cmd::before,
+.gtry[data-rim="flat"] .gpane::before,
+.gtry[data-rim="flat"] .gnav::before,
+.gtry[data-rim="flat"] .gdock::before {
+  border-color: var(--try-edge, transparent);
+  background: none;
+  -webkit-mask: none;
+  mask: none;
+}
+
+@keyframes say-burn { from { width: 100%; } to { width: 0; } }
+

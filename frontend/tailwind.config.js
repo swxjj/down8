@@ -8,61 +8,92 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Dark theme surfaces & ink
         dark: {
-          bg: '#090d16',
-          surface: '#0f172a',
-          card: '#131c31',
-          elevated: '#1a243e',
-          border: '#24324f',
-          subtle: '#1e293b',
+          canvas: '#0e0e11',
+          paper: '#16161a',
+          card: '#16161a',
+          surface: '#18181c',
+          border: '#27272e',
+          borderSubtle: '#1f1f24',
+          borderHover: '#3f3f46',
+          ink: '#ededed',
+          muted: '#a1a1aa',
+          subtle: '#71717a',
         },
-        brand: {
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
-          glow: '#7c3aed',
+        // Direct surface color helpers
+        canvas: {
+          DEFAULT: '#0e0e11',
+          light: '#faf8f5',
+          dark: '#0e0e11',
         },
-        accent: {
-          violet: '#8b5cf6',
-          purple: '#a855f7',
-          fuchsia: '#d946ef',
-          emerald: '#10b981',
-          cyan: '#06b6d4',
-          amber: '#f59e0b',
-          rose: '#f43f5e',
-        }
+        paper: {
+          DEFAULT: '#16161a',
+          light: '#fdfbfa',
+          dark: '#16161a',
+        },
+        border: {
+          DEFAULT: '#27272e',
+          light: '#d1d1cd',
+          dark: '#27272e',
+        },
+        // Semantic aliases
+        ink: {
+          DEFAULT: '#ededed',
+          dark: '#ededed',
+          light: '#27251e',
+          pure: '#ffffff',
+        },
+        mist: {
+          DEFAULT: '#27272e',
+          light: '#d1d1cd',
+          dark: '#27272e',
+        },
+        graphite: {
+          DEFAULT: '#a1a1aa',
+          dark: '#a1a1aa',
+          light: '#72706b',
+        },
+        ash: {
+          DEFAULT: '#71717a',
+          dark: '#71717a',
+          light: '#92918b',
+        },
+        teal: {
+          deep: '#016a71',
+          glow: '#00d1b2',
+        },
+        // Scholar's Parchment Palette (preserved for backwards compatibility)
+        parchment: {
+          canvas: '#faf8f5',    // Page canvas background
+          paper: '#fdfbfa',     // Elevated card surface
+          mist: '#d1d1cd',      // Hairline card/input borders (1px)
+          ash: '#92918b',       // Muted helper text
+          graphite: '#72706b',  // Nav icons, secondary text, inactive
+          ink: '#27251e',       // Primary text, filled buttons
+          black: '#000000',     // Maximum weight accents
+          teal: '#016a71',      // Deep Teal brand & active state
+          tealLight: '#eef6f6', // Soft teal background for active pills
+          tealBorder: '#bcd8da',// Subtle teal border
+        },
+      },
+      fontFamily: {
+        sans: ['Montserrat', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        montserrat: ['Montserrat', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
       },
       boxShadow: {
-        'glow-brand': '0 0 25px -5px rgba(99, 102, 241, 0.4)',
-        'glow-violet': '0 0 35px -5px rgba(139, 92, 246, 0.35)',
-        'glow-emerald': '0 0 30px -5px rgba(16, 185, 129, 0.35)',
-        'glow-card': '0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05)',
+        'paper': '0 1px 2px rgba(0, 0, 0, 0.04)',
+        'dark-paper': '0 1px 3px rgba(0, 0, 0, 0.4), 0 0 0 1px #27272e',
+        'search': '0 0 0 1px #27272e, 0 2px 8px -2px rgba(0, 0, 0, 0.3)',
+        'search-focus': '0 0 0 1.5px #016a71, 0 2px 12px -2px rgba(1, 106, 113, 0.25)',
       },
-      backgroundImage: {
-        'radial-gradient': 'radial-gradient(circle at 50% 0%, var(--tw-gradient-stops))',
-        'subtle-grid': 'linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px)',
+      borderRadius: {
+        'card': '16px',
+        'input': '12px',
+        'btn': '6px',
+        'pill': '9999px',
       },
-      animation: {
-        'shimmer': 'shimmer 2s linear infinite',
-        'pulse-subtle': 'pulseSubtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-      },
-      keyframes: {
-        shimmer: {
-          '0%': { backgroundPosition: '-200% 0' },
-          '100%': { backgroundPosition: '200% 0' },
-        },
-        pulseSubtle: {
-          '0%, 100%': { opacity: '1' },
-          '50%': { opacity: '0.6' },
-        }
-      }
     },
   },
   plugins: [],
