@@ -63,7 +63,7 @@ export async function fetchMediaInfo(url) {
     if (error.code === 'ERR_NETWORK' || !error.response) {
       console.warn('Backend server not reachable at ' + API_BASE_URL + '. Providing informative error or fallback.');
       const err = new Error(
-        'Unable to connect to backend server at ' + API_BASE_URL + '. Please ensure the OmniMedia backend is running, or try our sample links.'
+        'Unable to connect to backend server at ' + API_BASE_URL + '. Please ensure the down8 backend is running, or try our sample links.'
       );
       err.isNetworkError = true;
       throw err;
@@ -318,7 +318,7 @@ function simulateMockTaskEvents(taskId, onProgress, onComplete) {
         { progress: 42, status: 'downloading', status_text: 'Downloading high-bitrate video chunks...', speed: '8.4 MB/s', eta: '00:06' },
         { progress: 75, status: 'downloading', status_text: 'Downloading uncompressed audio stream...', speed: '10.2 MB/s', eta: '00:03' },
         { progress: 92, status: 'muxing', status_text: 'Muxing Video + Audio with FFmpeg lossless pass...', speed: '18.5 MB/s', eta: '00:01' },
-        { progress: 100, status: 'completed', status_text: 'Processing complete!', speed: '0 MB/s', eta: '00:00', filename: 'OmniMedia_Video_1080p.mp4', file_size: '86.4 MB' }
+        { progress: 100, status: 'completed', status_text: 'Processing complete!', speed: '0 MB/s', eta: '00:00', filename: 'down8_Video_1080p.mp4', file_size: '86.4 MB' }
       ];
 
   let currentStep = 0;

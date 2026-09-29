@@ -1,4 +1,4 @@
-# OmniMedia - Global Media Downloader
+# down8 - Global Media Downloader
 
 High-performance, modern media downloader for **YouTube**, **Instagram**, **X (Twitter)**, and **Facebook**, built with **Python FastAPI + yt-dlp** and **React + Tailwind CSS**.
 
