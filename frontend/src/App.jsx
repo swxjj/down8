@@ -6,6 +6,7 @@ import ProgressCard from './components/ProgressCard';
 import PreviewModal from './components/PreviewModal';
 import HistoryDrawer from './components/HistoryDrawer';
 import ErrorAlert from './components/ErrorAlert';
+import TextEffect from './components/core/text-effect';
 import { 
   fetchMediaInfo, 
   startDownload, 
@@ -309,9 +310,14 @@ export default function App() {
           {/* Left Side: Title + Input Bar + Buttons (Clean vertical stack, no gaps) */}
           <div className="lg:col-span-6 flex flex-col space-y-5">
             <div className="text-center lg:text-left">
-              <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#ededed] leading-tight">
+              <TextEffect
+                per="char"
+                preset="fade"
+                as="h1"
+                className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#ededed] leading-tight"
+              >
                 download any media from the web
-              </h1>
+              </TextEffect>
             </div>
 
             {/* Input Bar & Symmetrical Twin Buttons (Paste & Load) */}
