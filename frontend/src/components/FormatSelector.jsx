@@ -102,10 +102,10 @@ export default function FormatSelector({ formats, onDownload, isDownloading }) {
                 setSelectedType('video');
               }
             }}
-            className="px-4 py-3 rounded-[12px] border border-[#27272e] cursor-pointer transition-colors duration-150 flex items-center justify-between bg-[#16161a] text-[#ededed] hover:border-[#3f3f46] select-none"
+            className="px-4 py-3 rounded-[12px] border-0 outline-none focus:outline-none focus:ring-0 ring-0 cursor-pointer transition-colors duration-150 flex items-center justify-between bg-[#16161a] text-[#ededed] select-none"
           >
             <div className="flex items-center space-x-2.5">
-              <div className="w-7 h-7 rounded-[6px] bg-[#0e0e11] border border-[#27272e] flex items-center justify-center">
+              <div className="w-7 h-7 rounded-[6px] bg-[#0e0e11] flex items-center justify-center">
                 <Film className="w-3.5 h-3.5 text-[#ededed]" />
               </div>
               <div>
@@ -120,7 +120,7 @@ export default function FormatSelector({ formats, onDownload, isDownloading }) {
                   <Check className="w-2.5 h-2.5 stroke-[3]" />
                 </div>
               ) : (
-                <div className="w-4 h-4 rounded-full border border-[#27272e]" />
+                <div className="w-4 h-4 rounded-full bg-[#27272e]" />
               )}
             </div>
           </div>
@@ -138,10 +138,10 @@ export default function FormatSelector({ formats, onDownload, isDownloading }) {
                 setSelectedType('audio');
               }
             }}
-            className="px-4 py-3 rounded-[12px] border border-[#27272e] cursor-pointer transition-colors duration-150 flex items-center justify-between bg-[#16161a] text-[#ededed] hover:border-[#3f3f46] select-none"
+            className="px-4 py-3 rounded-[12px] border-0 outline-none focus:outline-none focus:ring-0 ring-0 cursor-pointer transition-colors duration-150 flex items-center justify-between bg-[#16161a] text-[#ededed] select-none"
           >
             <div className="flex items-center space-x-2.5">
-              <div className="w-7 h-7 rounded-[6px] bg-[#0e0e11] border border-[#27272e] flex items-center justify-center">
+              <div className="w-7 h-7 rounded-[6px] bg-[#0e0e11] flex items-center justify-center">
                 <Music className="w-3.5 h-3.5 text-[#ededed]" />
               </div>
               <div>
@@ -156,7 +156,7 @@ export default function FormatSelector({ formats, onDownload, isDownloading }) {
                   <Check className="w-2.5 h-2.5 stroke-[3]" />
                 </div>
               ) : (
-                <div className="w-4 h-4 rounded-full border border-[#27272e]" />
+                <div className="w-4 h-4 rounded-full bg-[#27272e]" />
               )}
             </div>
           </div>
@@ -187,10 +187,10 @@ export default function FormatSelector({ formats, onDownload, isDownloading }) {
                     data-id={item.format_id}
                     type="button"
                     onClick={() => setSelectedVideoId(item.format_id)}
-                    className={`h-9 px-2 rounded-[8px] text-[13px] font-medium border border-[#27272e] transition-colors duration-150 flex items-center justify-center truncate select-none bg-[#121216] ${
+                    className={`h-9 px-2 rounded-[8px] text-[13px] font-medium border-0 outline-none focus:outline-none focus:ring-0 ring-0 transition-colors duration-150 flex items-center justify-center truncate select-none bg-[#121216] ${
                       isSelected
                         ? 'text-black font-semibold'
-                        : 'text-[#a1a1aa] hover:text-[#ededed] hover:border-[#3f3f46]'
+                        : 'text-[#a1a1aa] hover:text-[#ededed]'
                     }`}
                     title={item.resolution}
                   >
@@ -220,10 +220,10 @@ export default function FormatSelector({ formats, onDownload, isDownloading }) {
                     data-id={item.format_id}
                     type="button"
                     onClick={() => setSelectedAudioId(item.format_id)}
-                    className={`h-9 px-3 rounded-[8px] text-[13px] font-medium border border-[#27272e] transition-colors duration-150 flex items-center justify-center truncate select-none bg-[#121216] ${
+                    className={`h-9 px-3 rounded-[8px] text-[13px] font-medium border-0 outline-none focus:outline-none focus:ring-0 ring-0 transition-colors duration-150 flex items-center justify-center truncate select-none bg-[#121216] ${
                       isSelected
                         ? 'text-black font-semibold'
-                        : 'text-[#a1a1aa] hover:text-[#ededed] hover:border-[#3f3f46]'
+                        : 'text-[#a1a1aa] hover:text-[#ededed]'
                     }`}
                     title={item.note}
                   >
