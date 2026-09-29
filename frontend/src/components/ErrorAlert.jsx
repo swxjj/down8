@@ -26,50 +26,55 @@ export default function ErrorAlert({ error, onDismiss, onRetry }) {
     if (isPrivatePost) {
       return {
         icon: Lock,
-        title: 'Private or Account-Gated Content',
-        accentColor: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
-        badge: 'Authentication Required',
-        guidance: 'OmniMedia supports public posts only to protect user privacy. This video, story, or carousel is set to private, friends-only, or requires an active platform login.',
-        solution: 'Verify that the post is accessible in an incognito browser tab without logging into any account.',
+        title: 'Authentication Required / Restricted Post',
+        cardStyle: 'bg-[#1c1914] border-[#3d2e1a] text-[#fcd34d]',
+        iconBg: 'bg-[#2b2010] text-[#f59e0b]',
+        badge: 'ACCESS RESTRICTED',
+        guidance: 'down8 supports public streams only. This post is private, account-restricted, or requires active platform session authentication.',
+        solution: 'Ensure the link opens in a private or incognito window without requiring an account login.',
       };
     }
     if (isSsrfBlock) {
       return {
         icon: ShieldAlert,
-        title: 'Security Policy: URL Blocked',
-        accentColor: 'border-red-500/30 bg-red-500/10 text-red-300',
-        badge: 'SSRF Protection Active',
-        guidance: 'Our security gateway blocked this URL because it resolved to a private IP, loopback, or non-whitelisted domain.',
-        solution: 'Provide a direct public link from YouTube, Instagram, X/Twitter, or Facebook.',
+        title: 'Security Gateway Block',
+        cardStyle: 'bg-[#1c1214] border-[#5c1d24] text-[#f87171]',
+        iconBg: 'bg-[#2c161a] text-[#ef4444]',
+        badge: 'SSRF PROTECTED',
+        guidance: 'Extraction blocked by the internal network isolation filter. Loopback and internal IP ranges are permanently denied.',
+        solution: 'Submit a canonical public media URL from YouTube, Instagram, X, or Facebook.',
       };
     }
     if (isRateLimit) {
       return {
         icon: Clock,
-        title: 'Platform Rate Limit Reached',
-        accentColor: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
-        badge: 'HTTP 429 Throttle',
-        guidance: 'The target platform is temporarily throttling incoming extraction requests.',
-        solution: 'Wait 30-60 seconds and attempt the fetch again. High-speed caching is active.',
+        title: 'Platform Rate Limit Exceeded',
+        cardStyle: 'bg-[#1c1914] border-[#3d2e1a] text-[#fcd34d]',
+        iconBg: 'bg-[#2b2010] text-[#f59e0b]',
+        badge: 'HTTP 429 THROTTLE',
+        guidance: 'The host platform has temporarily throttled upstream extraction requests from this IP.',
+        solution: 'Wait 30-60 seconds before initiating another stream request.',
       };
     }
     if (isNetworkFailure) {
       return {
         icon: WifiOff,
-        title: 'Backend Server Connection Failed',
-        accentColor: 'border-blue-500/30 bg-blue-500/10 text-blue-300',
-        badge: 'Offline Service',
-        guidance: 'Could not connect to the OmniMedia extraction backend (http://localhost:8000).',
-        solution: 'Make sure your Python / FastAPI service is running. In the meantime, try our interactive demo samples above to explore the UI features.',
+        title: 'Backend Ingest Gateway Offline',
+        cardStyle: 'bg-[#16161a] border-[#27272e] text-[#ededed]',
+        iconBg: 'bg-[#202026] text-[#ededed]',
+        badge: 'CONNECTION REFUSED',
+        guidance: 'Unable to reach the FastAPI core daemon on http://localhost:8000.',
+        solution: 'Ensure the backend server is running via python run.py.',
       };
     }
     return {
       icon: AlertTriangle,
-      title: 'Extraction Error',
-      accentColor: 'border-red-500/30 bg-red-500/10 text-red-300',
-      badge: 'Parsing Failed',
+      title: 'Media Extraction Failure',
+      cardStyle: 'bg-[#1c1214] border-[#5c1d24] text-[#f87171]',
+      iconBg: 'bg-[#2c161a] text-[#ef4444]',
+      badge: 'INGEST ERROR',
       guidance: errorMessage,
-      solution: 'Ensure the link is valid and contains downloadable video, photo, or audio media.',
+      solution: 'Confirm the source URL contains active, accessible video or audio stream endpoints.',
     };
   };
 
@@ -77,33 +82,35 @@ export default function ErrorAlert({ error, onDismiss, onRetry }) {
   const Icon = details.icon;
 
   return (
-    <div className="w-full max-w-4xl mx-auto animate-in slide-in-from-top-3 duration-300">
-      <div className={`rounded-2xl border p-4 sm:p-5 shadow-2xl backdrop-blur-xl relative overflow-hidden ${details.accentColor}`}>
-        
+    <div 
+      role="alert"
+      className="w-full max-w-[760px] mx-auto animate-in fade-in duration-150 font-sans"
+    >
+      <div className={`rounded-[14px] border p-4 shadow-sm ${details.cardStyle}`}>
         <div className="flex items-start justify-between gap-3">
-          <div className="flex items-start space-x-3.5">
-            <div className="p-2.5 rounded-xl bg-white/10 flex-shrink-0 mt-0.5 shadow-inner">
-              <Icon className="w-5 h-5" />
+          <div className="flex items-start space-x-3 min-w-0">
+            <div className={`p-2 rounded-[8px] flex-shrink-0 mt-0.5 ${details.iconBg}`}>
+              <Icon className="w-4 h-4" />
             </div>
 
-            <div className="space-y-1">
-              <div className="flex items-center space-x-2">
-                <h4 className="text-sm sm:text-base font-bold text-white">
+            <div className="space-y-1.5 min-w-0">
+              <div className="flex items-center space-x-2 flex-wrap">
+                <h4 className="text-[14px] font-medium tracking-tight">
                   {details.title}
                 </h4>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-white/10 text-white border border-white/15">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-black/30 border border-current/40 opacity-90">
                   {details.badge}
                 </span>
               </div>
 
-              <p className="text-xs text-slate-300 leading-relaxed max-w-2xl">
+              <p className="text-[13px] leading-relaxed max-w-2xl opacity-90">
                 {details.guidance}
               </p>
 
               {details.solution && (
-                <div className="mt-2 text-[11px] text-slate-400 bg-black/20 rounded-lg p-2.5 border border-white/5 flex items-center space-x-2">
-                  <ShieldCheck className="w-4 h-4 flex-shrink-0 text-emerald-400" />
-                  <span><strong>Suggestion:</strong> {details.solution}</span>
+                <div className="mt-2 text-[12px] bg-[#16161a] text-[#ededed] rounded-[8px] p-2.5 border border-[#27272e] flex items-center space-x-2">
+                  <ShieldCheck className="w-4 h-4 flex-shrink-0 text-[#ededed]" />
+                  <span><strong className="text-white">Action:</strong> {details.solution}</span>
                 </div>
               )}
             </div>
@@ -114,23 +121,22 @@ export default function ErrorAlert({ error, onDismiss, onRetry }) {
               <button
                 type="button"
                 onClick={onRetry}
-                className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+                className="p-1.5 rounded-[6px] text-current/70 hover:text-current hover:bg-white/10 transition-colors"
                 title="Retry request"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="w-3.5 h-3.5" />
               </button>
             )}
             <button
               type="button"
               onClick={onDismiss}
-              className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+              className="p-1.5 rounded-[6px] text-current/70 hover:text-current hover:bg-white/10 transition-colors"
               title="Dismiss error"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
-
       </div>
     </div>
   );

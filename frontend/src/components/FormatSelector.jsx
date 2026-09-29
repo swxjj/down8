@@ -1,254 +1,240 @@
-import React, { useState } from 'react';
-import { Video, Music, Download, Zap, CheckCircle2, ShieldCheck, HardDrive } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Download, Film, Music, Check } from 'lucide-react';
 
 export default function FormatSelector({ formats, onDownload, isDownloading }) {
-  const [activeTab, setActiveTab] = useState('video'); // 'video' | 'audio'
-  
-  // Default video formats if none returned by backend
+  const [selectedType, setSelectedType] = useState('video'); // 'video' | 'audio'
+
   const defaultVideoFormats = [
-    { format_id: '2160p', resolution: '4K Ultra HD', ext: 'mp4', filesize_estimate: '380 MB', fps: 60, badge: 'Ultra HD', note: 'Highest fidelity for large screens' },
-    { format_id: '1080p', resolution: '1080p Full HD', ext: 'mp4', filesize_estimate: '125 MB', fps: 60, badge: 'Recommended', note: 'Optimal balance of quality & size' },
-    { format_id: '720p', resolution: '720p HD', ext: 'mp4', filesize_estimate: '65 MB', fps: 30, badge: 'Standard', note: 'Great for mobile and tablets' },
-    { format_id: '480p', resolution: '480p SD', ext: 'mp4', filesize_estimate: '32 MB', fps: 30, badge: 'Data Saver', note: 'Fast download with minimal data' },
+    { format_id: 'best', label: '1080p', resolution: '1080p Full HD', height: 1080 },
+    { format_id: '720p', label: '720p', resolution: '720p HD', height: 720 },
+    { format_id: '480p', label: '480p', resolution: '480p SD', height: 480 },
   ];
 
-  // Default audio formats conforming to specification
   const defaultAudioFormats = [
-    { 
-      format_id: 'mp3-320', 
-      type: 'mp3', 
-      label: 'MP3 Universal HQ (320kbps)', 
-      quality: '320 kbps CBR',
-      ext: 'mp3', 
-      filesize_estimate: '9.8 MB', 
-      badge: 'Universal', 
-      description: 'Studio-grade audio transcoding. Works on all car stereos, iOS, Android, and media players.' 
-    },
-    { 
-      format_id: 'm4a-aac', 
-      type: 'm4a', 
-      label: 'M4A Fast Direct Stream', 
-      quality: 'Original AAC',
-      ext: 'm4a', 
-      filesize_estimate: '6.5 MB', 
-      badge: 'Fastest / Lossless', 
-      description: 'Extracted directly from source container without re-encoding. Instant download with zero quality degradation.' 
-    },
+    { format_id: 'mp3-320', label: 'MP3 320kbps', type: 'mp3', note: 'High Quality CBR' },
+    { format_id: 'm4a', label: 'M4A Original', type: 'm4a', note: 'AAC Passthrough' },
   ];
 
-  const videoList = (formats?.video && formats.video.length > 0) ? formats.video : defaultVideoFormats;
-  const audioList = (formats?.audio && formats.audio.length > 0) ? formats.audio : defaultAudioFormats;
+  // Parse formats safely whether it's a flat array or pre-grouped object
+  const rawList = Array.isArray(formats) 
+    ? formats 
+    : (formats?.video ? [...formats.video, ...(formats.audio || [])] : []);
 
-  const [selectedVideo, setSelectedVideo] = useState(videoList[1]?.format_id || videoList[0]?.format_id || '1080p');
-  const [selectedAudio, setSelectedAudio] = useState(audioList[0]?.format_id || 'mp3-320');
+  const videoFormats = rawList.filter((f) => f.type === 'video');
+  const audioFormats = rawList.filter((f) => f.type === 'audio');
+
+  // Map video formats cleanly
+  const videoList = videoFormats.length > 0 
+    ? videoFormats.map((v) => ({
+        format_id: v.format_id,
+        label: v.height ? `${v.height}p` : (v.resolution || v.format_id),
+        resolution: v.resolution || v.format_id,
+        filesize: v.filesize_estimate,
+        height: v.height,
+      }))
+    : defaultVideoFormats;
+
+  // Map audio formats cleanly
+  const audioList = audioFormats.length > 0
+    ? audioFormats.map((a) => ({
+        format_id: a.format_id,
+        label: a.format_note?.includes('320') || a.format_id?.includes('320') ? 'MP3 320kbps' : (a.format_note || a.format_id?.toUpperCase() || 'Audio'),
+        type: a.ext || (a.format_id?.includes('m4a') ? 'm4a' : 'mp3'),
+        note: a.format_note || (a.ext === 'm4a' ? 'Original AAC' : 'Universal MP3'),
+      }))
+    : defaultAudioFormats;
+
+  const [selectedVideoId, setSelectedVideoId] = useState(videoList[0]?.format_id || 'best');
+  const [selectedAudioId, setSelectedAudioId] = useState(audioList[0]?.format_id || 'mp3-320');
+
+  // Sync selected format IDs when formats change
+  useEffect(() => {
+    if (videoList.length > 0) {
+      setSelectedVideoId(videoList[0].format_id);
+    }
+    if (audioList.length > 0) {
+      setSelectedAudioId(audioList[0].format_id);
+    }
+  }, [formats]);
+
+  const currentSelectedVideo = videoList.find((v) => v.format_id === selectedVideoId) || videoList[0];
+  const currentSelectedAudio = audioList.find((a) => a.format_id === selectedAudioId) || audioList[0];
 
   const handleDownload = () => {
-    if (activeTab === 'video') {
-      const selected = videoList.find((v) => v.format_id === selectedVideo) || videoList[0];
+    if (selectedType === 'video') {
       onDownload({
         media_type: 'video',
-        format_id: selected.format_id,
+        format_id: currentSelectedVideo?.format_id || 'best',
         audio_format: null,
       });
     } else {
-      const selected = audioList.find((a) => a.format_id === selectedAudio) || audioList[0];
       onDownload({
         media_type: 'audio',
-        format_id: selected.format_id,
-        audio_format: selected.type,
+        format_id: currentSelectedAudio?.format_id || 'mp3-320',
+        audio_format: currentSelectedAudio?.type || 'mp3',
       });
     }
   };
 
-  const currentSelectedVideo = videoList.find((v) => v.format_id === selectedVideo) || videoList[0];
-  const currentSelectedAudio = audioList.find((a) => a.format_id === selectedAudio) || audioList[0];
-
   return (
-    <div className="w-full bg-dark-card/90 border border-white/10 rounded-2xl p-4 sm:p-6 shadow-xl backdrop-blur-md">
+    <div className="w-full space-y-4 font-sans">
       
-      {/* Tab Switch: Video vs Audio */}
-      <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-5">
-        <div>
-          <h4 className="text-base font-bold text-white tracking-wide">Select Download Format</h4>
-          <p className="text-xs text-slate-400">Choose your desired resolution or extracted audio track</p>
-        </div>
-
-        <div className="flex bg-dark-bg p-1 rounded-xl border border-white/10 shadow-inner">
-          <button
-            type="button"
-            onClick={() => setActiveTab('video')}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 ${
-              activeTab === 'video'
-                ? 'bg-gradient-to-r from-brand-600 to-indigo-600 text-white shadow-glow-brand'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Video className="w-4 h-4" />
-            <span>Video (MP4)</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('audio')}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 ${
-              activeTab === 'audio'
-                ? 'bg-gradient-to-r from-accent-purple to-brand-600 text-white shadow-glow-brand'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Music className="w-4 h-4" />
-            <span>Audio (MP3 / M4A)</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Video Options View */}
-      {activeTab === 'video' && (
-        <div className="space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {videoList.map((item) => {
-              const isSelected = selectedVideo === item.format_id;
-              return (
-                <div
-                  key={item.format_id}
-                  onClick={() => setSelectedVideo(item.format_id)}
-                  className={`relative p-3.5 rounded-xl border cursor-pointer transition-all duration-200 flex flex-col justify-between ${
-                    isSelected
-                      ? 'bg-brand-500/10 border-brand-500 shadow-glow-brand ring-1 ring-brand-500/40'
-                      : 'bg-dark-elevated/50 border-white/5 hover:border-white/20 hover:bg-dark-elevated'
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-bold text-white">{item.resolution}</span>
-                        {item.badge && (
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                            item.badge === 'Ultra HD' 
-                              ? 'bg-accent-violet/20 text-accent-violet border border-accent-violet/30'
-                              : item.badge === 'Recommended'
-                              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                              : 'bg-slate-700/50 text-slate-300'
-                          }`}>
-                            {item.badge}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-[11px] text-slate-400 mt-1">{item.note || 'High Definition video stream'}</p>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      {isSelected ? (
-                        <CheckCircle2 className="w-5 h-5 text-brand-400 flex-shrink-0" />
-                      ) : (
-                        <div className="w-5 h-5 rounded-full border border-slate-600"></div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-white/5 text-[11px] text-slate-400">
-                    <span className="flex items-center space-x-1 font-mono">
-                      <span className="uppercase text-slate-500 font-semibold">{item.ext || 'mp4'}</span>
-                      {item.fps && <span className="text-slate-400">• {item.fps}fps</span>}
-                    </span>
-                    <span className="flex items-center space-x-1 text-slate-300 font-semibold">
-                      <HardDrive className="w-3 h-3 text-slate-500" />
-                      <span>{item.filesize_estimate || 'Direct Stream'}</span>
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Audio Options View */}
-      {activeTab === 'audio' && (
-        <div className="space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {audioList.map((item) => {
-              const isSelected = selectedAudio === item.format_id;
-              return (
-                <div
-                  key={item.format_id}
-                  onClick={() => setSelectedAudio(item.format_id)}
-                  className={`relative p-4 rounded-xl border cursor-pointer transition-all duration-200 flex flex-col justify-between ${
-                    isSelected
-                      ? 'bg-accent-purple/10 border-accent-purple shadow-glow-brand ring-1 ring-accent-purple/40'
-                      : 'bg-dark-elevated/50 border-white/5 hover:border-white/20 hover:bg-dark-elevated'
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-bold text-white">{item.label}</span>
-                        {item.badge && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent-violet/20 text-accent-violet border border-accent-violet/30 uppercase tracking-wider">
-                            {item.badge}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">{item.description}</p>
-                    </div>
-
-                    <div className="ml-2">
-                      {isSelected ? (
-                        <CheckCircle2 className="w-5 h-5 text-accent-purple flex-shrink-0" />
-                      ) : (
-                        <div className="w-5 h-5 rounded-full border border-slate-600"></div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-white/5 text-[11px] text-slate-400">
-                    <span className="font-mono text-slate-300 font-semibold">{item.quality}</span>
-                    <span className="flex items-center space-x-1 text-slate-300 font-semibold">
-                      <HardDrive className="w-3 h-3 text-slate-500" />
-                      <span>{item.filesize_estimate || '~8 MB'}</span>
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="bg-brand-500/5 border border-brand-500/20 rounded-xl p-3 flex items-center space-x-2 text-xs text-brand-300">
-            <Zap className="w-4 h-4 flex-shrink-0 text-amber-400" />
-            <span>
-              <strong>Audiophile note:</strong> Universal MP3 transcode runs at 320kbps CBR for optimal hardware compatibility, while M4A preserves pure AAC original stream.
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* Main Download CTA Button */}
-      <div className="mt-5 pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="text-xs text-slate-400 flex items-center space-x-1.5">
-          <ShieldCheck className="w-4 h-4 text-emerald-400" />
-          <span>Lossless processing with automatic FFmpeg post-processing</span>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleDownload}
-          disabled={isDownloading}
-          className={`w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-sm tracking-wide flex items-center justify-center space-x-2.5 transition-all duration-300 shadow-xl ${
-            isDownloading
-              ? 'bg-dark-elevated text-slate-500 cursor-not-allowed border border-white/5'
-              : activeTab === 'video'
-              ? 'bg-gradient-to-r from-brand-600 via-indigo-600 to-accent-violet hover:from-brand-500 hover:to-accent-purple text-white shadow-glow-brand active:scale-95'
-              : 'bg-gradient-to-r from-accent-purple via-indigo-600 to-emerald-600 hover:from-accent-fuchsia hover:to-emerald-500 text-white shadow-glow-emerald active:scale-95'
+      {/* Symmetrical Twin Primary Type Selector: Video vs Audio (Pure Monochrome) */}
+      <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Media format choice">
+        
+        {/* Option 1: Video */}
+        <div
+          role="radio"
+          aria-checked={selectedType === 'video'}
+          tabIndex={0}
+          onClick={() => setSelectedType('video')}
+          onKeyDown={(e) => {
+            if (e.key === ' ' || e.key === 'Enter') {
+              e.preventDefault();
+              setSelectedType('video');
+            }
+          }}
+          className={`px-4 py-3 rounded-[12px] border cursor-pointer transition-all duration-150 flex items-center justify-between ${
+            selectedType === 'video'
+              ? 'border-white/80 bg-[#202026] text-[#ededed] ring-1 ring-white/20'
+              : 'bg-[#16161a] border-[#27272e] text-[#ededed] hover:border-[#3f3f46]'
           }`}
         >
-          <Download className="w-4 h-4" />
-          <span>
-            {activeTab === 'video'
-              ? `Download Video (${currentSelectedVideo?.resolution || 'MP4'})`
-              : `Download Audio (${currentSelectedAudio?.type.toUpperCase() || 'MP3'})`}
-          </span>
-        </button>
+          <div className="flex items-center space-x-2.5">
+            <div className="w-7 h-7 rounded-[6px] bg-[#0e0e11] border border-[#27272e] flex items-center justify-center">
+              <Film className="w-3.5 h-3.5 text-[#ededed]" />
+            </div>
+            <div>
+              <h4 className="text-[14px] font-medium text-[#ededed]">Video</h4>
+              <p className="text-[11px] text-[#71717a]">MP4 Container</p>
+            </div>
+          </div>
+
+          <div className="w-4 h-4 rounded-full flex items-center justify-center">
+            {selectedType === 'video' ? (
+              <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center text-black">
+                <Check className="w-2.5 h-2.5 stroke-[3]" />
+              </div>
+            ) : (
+              <div className="w-4 h-4 rounded-full border border-[#27272e]" />
+            )}
+          </div>
+        </div>
+
+        {/* Option 2: Audio */}
+        <div
+          role="radio"
+          aria-checked={selectedType === 'audio'}
+          tabIndex={0}
+          onClick={() => setSelectedType('audio')}
+          onKeyDown={(e) => {
+            if (e.key === ' ' || e.key === 'Enter') {
+              e.preventDefault();
+              setSelectedType('audio');
+            }
+          }}
+          className={`px-4 py-3 rounded-[12px] border cursor-pointer transition-all duration-150 flex items-center justify-between ${
+            selectedType === 'audio'
+              ? 'border-white/80 bg-[#202026] text-[#ededed] ring-1 ring-white/20'
+              : 'bg-[#16161a] border-[#27272e] text-[#ededed] hover:border-[#3f3f46]'
+          }`}
+        >
+          <div className="flex items-center space-x-2.5">
+            <div className="w-7 h-7 rounded-[6px] bg-[#0e0e11] border border-[#27272e] flex items-center justify-center">
+              <Music className="w-3.5 h-3.5 text-[#ededed]" />
+            </div>
+            <div>
+              <h4 className="text-[14px] font-medium text-[#ededed]">Audio</h4>
+              <p className="text-[11px] text-[#71717a]">Audio Track</p>
+            </div>
+          </div>
+
+          <div className="w-4 h-4 rounded-full flex items-center justify-center">
+            {selectedType === 'audio' ? (
+              <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center text-black">
+                <Check className="w-2.5 h-2.5 stroke-[3]" />
+              </div>
+            ) : (
+              <div className="w-4 h-4 rounded-full border border-[#27272e]" />
+            )}
+          </div>
+        </div>
+
       </div>
+
+      {/* Selectable Qualities Sub-Section */}
+      <div className="space-y-1.5">
+        <span className="text-[11px] font-medium text-[#71717a] uppercase tracking-wider">
+          {selectedType === 'video' ? 'Select Resolution' : 'Select Audio Format'}
+        </span>
+
+        {/* Video Qualities (e.g. 1080p, 720p, 480p, etc.) */}
+        {selectedType === 'video' && (
+          <div className="grid grid-cols-4 gap-2">
+            {videoList.slice(0, 4).map((item) => {
+              const isSelected = selectedVideoId === item.format_id;
+              return (
+                <button
+                  key={item.format_id}
+                  type="button"
+                  onClick={() => setSelectedVideoId(item.format_id)}
+                  className={`h-9 px-2 rounded-[8px] text-[13px] font-medium border transition-all duration-150 flex items-center justify-center truncate select-none ${
+                    isSelected
+                      ? 'border-white/80 bg-white text-black font-semibold shadow-sm'
+                      : 'bg-[#121216] border-[#27272e] text-[#a1a1aa] hover:text-[#ededed] hover:border-[#3f3f46]'
+                  }`}
+                  title={item.resolution}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Audio Qualities (e.g. MP3 320kbps, M4A Original) */}
+        {selectedType === 'audio' && (
+          <div className="grid grid-cols-2 gap-2">
+            {audioList.map((item) => {
+              const isSelected = selectedAudioId === item.format_id;
+              return (
+                <button
+                  key={item.format_id}
+                  type="button"
+                  onClick={() => setSelectedAudioId(item.format_id)}
+                  className={`h-9 px-3 rounded-[8px] text-[13px] font-medium border transition-all duration-150 flex items-center justify-center truncate select-none ${
+                    isSelected
+                      ? 'border-white/80 bg-white text-black font-semibold shadow-sm'
+                      : 'bg-[#121216] border-[#27272e] text-[#a1a1aa] hover:text-[#ededed] hover:border-[#3f3f46]'
+                  }`}
+                  title={item.note}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Primary Download CTA */}
+      <button
+        type="button"
+        onClick={handleDownload}
+        disabled={isDownloading}
+        className={`w-full h-11 rounded-full text-[14px] font-medium flex items-center justify-center space-x-2 transition-all duration-150 select-none active:scale-[0.98] ${
+          isDownloading
+            ? 'bg-[#27272e] text-[#71717a] cursor-not-allowed'
+            : 'bg-[#ededed] hover:bg-white text-[#0e0e11] shadow-sm'
+        }`}
+      >
+        <Download className="w-4 h-4" />
+        <span>
+          {selectedType === 'video' 
+            ? `Download Video (${currentSelectedVideo?.label || '1080p'})` 
+            : `Download Audio (${currentSelectedAudio?.label || 'MP3'})`}
+        </span>
+      </button>
 
     </div>
   );
