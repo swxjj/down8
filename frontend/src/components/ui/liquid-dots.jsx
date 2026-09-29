@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
  * LiquidDots - Tactile fluid loading indicator featuring two organically oscillating dots.
  * 
  * Props:
- * - theme: "dark" | "light" (defaults to "dark")
+ * - theme: "dark" | "light" (defaults to "dark", which renders dark liquid ink dots for light/white buttons)
  * - className: additional wrapper classes
  * - isTraveling: boolean, when true triggers the exit travel animation towards the preview area
  * - travelTarget: { x: number, y1: number, y2: number } target relative pixel coordinates
@@ -16,16 +16,17 @@ export function LiquidDots({
   isTraveling = false,
   travelTarget = { x: 380, y1: -20, y2: 120 },
 }) {
-  const isDark = theme === 'dark';
+  // Theme dark = dark ink dots (for white/light button container)
+  // Theme light = light luminous dots (for dark button container)
+  const isDarkDots = theme === 'dark';
 
-  // Liquid dot styling based on active theme
-  const dot1Color = isDark 
-    ? 'bg-zinc-100 shadow-[0_0_10px_rgba(255,255,255,0.45)]' 
-    : 'bg-zinc-900 shadow-[0_0_8px_rgba(0,0,0,0.25)]';
+  const dot1Color = isDarkDots 
+    ? 'bg-zinc-900 shadow-[0_0_6px_rgba(0,0,0,0.3)]' 
+    : 'bg-zinc-100 shadow-[0_0_10px_rgba(255,255,255,0.45)]';
   
-  const dot2Color = isDark 
-    ? 'bg-zinc-300 shadow-[0_0_8px_rgba(255,255,255,0.3)]' 
-    : 'bg-zinc-700 shadow-[0_0_6px_rgba(0,0,0,0.2)]';
+  const dot2Color = isDarkDots 
+    ? 'bg-zinc-700 shadow-[0_0_5px_rgba(0,0,0,0.2)]' 
+    : 'bg-zinc-300 shadow-[0_0_8px_rgba(255,255,255,0.3)]';
 
   // Spring transition for the traveling phase
   const travelSpring = {
@@ -35,16 +36,16 @@ export function LiquidDots({
   };
 
   return (
-    <div className={`relative flex items-center justify-center w-12 h-6 pointer-events-none select-none ${className}`}>
+    <div className={`relative flex items-center justify-center w-10 h-5 pointer-events-none select-none ${className}`}>
       {/* SVG Gooey / Liquid Filter (hidden, referenced via CSS filter) */}
       <svg className="absolute w-0 h-0 pointer-events-none" aria-hidden="true">
         <defs>
           <filter id="liquid-filter">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
             <feColorMatrix
               in="blur"
               mode="matrix"
-              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7"
+              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 16 -6"
               result="goo"
             />
             <feBlend in="SourceGraphic" in2="goo" />
@@ -56,9 +57,9 @@ export function LiquidDots({
         className="relative flex items-center justify-center w-full h-full"
         style={{ filter: isTraveling ? 'none' : 'url(#liquid-filter)' }}
       >
-        {/* Dot 1: Upper / Primary Dot */}
+        {/* Dot 1: Primary Liquid Dot */}
         <motion.span
-          className={`absolute w-3 h-3 rounded-full ${dot1Color}`}
+          className={`absolute w-2.5 h-2.5 rounded-full ${dot1Color}`}
           animate={
             isTraveling
               ? {
@@ -68,7 +69,7 @@ export function LiquidDots({
                   opacity: [1, 1, 0],
                 }
               : {
-                  x: [-8, 8, -8],
+                  x: [-6, 6, -6],
                   scaleX: [1, 1.25, 0.85, 1],
                   scaleY: [1, 0.85, 1.25, 1],
                   opacity: 1,
@@ -82,15 +83,15 @@ export function LiquidDots({
                 }
               : {
                   repeat: Infinity,
-                  duration: 1.15,
+                  duration: 1.1,
                   ease: 'easeInOut',
                 }
           }
         />
 
-        {/* Dot 2: Lower / Secondary Dot */}
+        {/* Dot 2: Secondary Liquid Dot */}
         <motion.span
-          className={`absolute w-2.5 h-2.5 rounded-full ${dot2Color}`}
+          className={`absolute w-2 h-2 rounded-full ${dot2Color}`}
           animate={
             isTraveling
               ? {
@@ -100,7 +101,7 @@ export function LiquidDots({
                   opacity: [1, 1, 0],
                 }
               : {
-                  x: [8, -8, 8],
+                  x: [6, -6, 6],
                   scaleX: [1, 0.85, 1.25, 1],
                   scaleY: [1, 1.25, 0.85, 1],
                   opacity: 1,
@@ -115,7 +116,7 @@ export function LiquidDots({
                 }
               : {
                   repeat: Infinity,
-                  duration: 1.15,
+                  duration: 1.1,
                   ease: 'easeInOut',
                 }
           }

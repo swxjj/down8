@@ -115,7 +115,7 @@ export default function UrlInput({
             )}
           </button>
 
-          {/* Symmetrical Morphing Load Button -> LiquidDots */}
+          {/* Symmetrical Morphing White Load Button -> LiquidDots */}
           <div className="w-full flex justify-end">
             <motion.button
               id="load-button"
@@ -123,40 +123,38 @@ export default function UrlInput({
               type="submit"
               disabled={!url.trim() || isLoading || isTraveling}
               animate={{
-                width: isLoading || isTraveling ? 76 : '100%',
+                width: isLoading || isTraveling ? 64 : '100%',
+                paddingLeft: isLoading || isTraveling ? 8 : 24,
+                paddingRight: isLoading || isTraveling ? 8 : 24,
               }}
-              transition={{ type: 'spring', stiffness: 350, damping: 26 }}
-              className={`h-11 rounded-full text-[14px] font-medium transition-colors duration-200 flex items-center justify-center select-none active:scale-[0.98] relative overflow-visible ${
-                isLoading || isTraveling
-                  ? 'bg-white/50 dark:bg-zinc-800/80 border border-black/10 dark:border-white/10 backdrop-blur-sm pointer-events-none cursor-default shadow-xs'
-                  : !url.trim()
-                    ? 'bg-black/5 dark:bg-[#27272e] text-zinc-400 dark:text-[#71717a] border border-black/5 dark:border-transparent cursor-not-allowed'
-                    : 'bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-[#ededed] dark:hover:bg-white dark:text-[#0e0e11] shadow-sm cursor-pointer'
-              }`}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              className={`h-11 rounded-full text-[14px] font-medium bg-zinc-100 dark:bg-[#ededed] text-zinc-900 dark:text-[#0e0e11] hover:bg-white dark:hover:bg-white shadow-sm border border-black/5 dark:border-transparent select-none active:scale-[0.98] relative overflow-visible flex items-center justify-center cursor-pointer ${
+                !url.trim() && !isLoading ? 'opacity-40 cursor-not-allowed' : ''
+              } ${isLoading || isTraveling ? 'pointer-events-none' : ''}`}
             >
               <AnimatePresence mode="wait">
                 {!isLoading && !isTraveling ? (
                   <motion.span
-                    key="idle-load"
-                    initial={{ opacity: 0, scale: 0.85 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.85 }}
+                    key="text"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
                     transition={{ duration: 0.15 }}
-                    className="truncate"
+                    className="font-medium text-sm text-zinc-900 dark:text-[#0e0e11] select-none"
                   >
                     Load
                   </motion.span>
                 ) : (
                   <motion.div
-                    key="liquid-loader"
+                    key="loader"
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.18 }}
-                    className="flex items-center justify-center pointer-events-none"
+                    transition={{ duration: 0.15 }}
+                    className="flex items-center justify-center w-full h-full pointer-events-none"
                   >
                     <LiquidDots
-                      theme={isDark ? 'dark' : 'light'}
+                      theme="dark"
                       isTraveling={isTraveling}
                       travelTarget={travelTarget}
                     />
