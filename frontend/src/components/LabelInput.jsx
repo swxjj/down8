@@ -94,8 +94,8 @@ export function LabelInput({
      the straight part of the top edge, so a rounder field
      starts its label further in. Add generous margin so the line
      never intersects the phrase. */
-  const lx = Math.max(16, r + 4);
-  const x0 = Math.max(r * 0.5, lx - 8);
+  const lx = Math.max(20, r + 6);
+  const x0 = Math.max(r, lx - 4);
   const x1 = lx + lw * S + 12;
   const a = r - IN;
   const R = W - IN;
@@ -112,7 +112,7 @@ export function LabelInput({
     ? `M${x1},${IN} L${W - r},${IN} A${a},${a} 0 0 1 ${R},${r} L${R},${H - r} A${a},${a} 0 0 1 ${W - r},${B} L${mid},${B}`
     : `M${x1},${IN} L${R},${IN} L${R},${B} L${mid},${B}`;
 
-  /* left: from the notch, the other way round, to the same point */
+  /* left: from the notch, counter-clockwise to the corner arc and down to bottom middle */
   const left = r > 0
     ? `M${x0},${IN} L${r},${IN} A${a},${a} 0 0 0 ${IN},${r} L${IN},${H - r} A${a},${a} 0 0 0 ${r},${B} L${mid},${B}`
     : `M${x0},${IN} L${IN},${IN} L${IN},${B} L${mid},${B}`;
