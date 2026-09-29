@@ -9,6 +9,7 @@ import {
   RefreshCw, 
   ShieldCheck
 } from 'lucide-react';
+import { API_BASE_URL } from '../services/api';
 
 export default function ErrorAlert({ error, onDismiss, onRetry }) {
   if (!error) return null;
@@ -63,8 +64,8 @@ export default function ErrorAlert({ error, onDismiss, onRetry }) {
         cardStyle: 'bg-[#16161a] border-[#27272e] text-[#ededed]',
         iconBg: 'bg-[#202026] text-[#ededed]',
         badge: 'CONNECTION REFUSED',
-        guidance: 'Unable to reach the FastAPI core daemon on http://localhost:8000.',
-        solution: 'Ensure the backend server is running via python run.py.',
+        guidance: `Unable to reach the FastAPI core backend at ${API_BASE_URL}.`,
+        solution: 'If deployed on Vercel, set VITE_API_BASE_URL in Vercel project settings to your public backend URL. For local dev, run python run.py.',
       };
     }
     return {

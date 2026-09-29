@@ -3,6 +3,16 @@ import { Download, Film, Music, Check } from 'lucide-react';
 import AnimatedBackground from './core/animated-background';
 import Btn4 from './ui/btn-4';
 
+function formatBytes(bytes) {
+  if (!bytes) return null;
+  const num = typeof bytes === 'string' ? parseFloat(bytes) : bytes;
+  if (isNaN(num) || num <= 0) return typeof bytes === 'string' ? bytes : null;
+  if (typeof bytes === 'string' && (bytes.includes('MB') || bytes.includes('KB') || bytes.includes('GB') || bytes.includes('B'))) return bytes;
+  const units = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(num) / Math.log(1024));
+  return `${(num / Math.pow(1024, i)).toFixed(1)} ${units[i]}`;
+}
+
 export default function FormatSelector({ formats, onDownload, isDownloading, activeTask }) {
   const [selectedType, setSelectedType] = useState('video'); // 'video' | 'audio'
 
@@ -27,23 +37,40 @@ export default function FormatSelector({ formats, onDownload, isDownloading, act
 
   // Map video formats cleanly
   const videoList = videoFormats.length > 0 
-    ? videoFormats.map((v) => ({
-        format_id: v.format_id,
-        label: v.height ? `${v.height}p` : (v.resolution || v.format_id),
-        resolution: v.resolution || v.format_id,
-        filesize: v.filesize_estimate,
-        height: v.height,
-      }))
+    ? videoFormats.map((v) => {
+        let cleanLabel = v.height ? `${v.height}p` : (v.resolution || v.format_id);
+        if (/^\d+$/.test(cleanLabel)) {
+          cleanLabel = `${cleanLabel}p`;
+        }
+        return {
+          format_id: v.format_id,
+          label: cleanLabel,
+          resolution: v.resolution || v.format_id,
+          filesize: v.filesize_estimate,
+          height: v.height,
+        };
+      })
     : defaultVideoFormats;
 
   // Map audio formats cleanly
   const audioList = audioFormats.length > 0
-    ? audioFormats.map((a) => ({
-        format_id: a.format_id,
-        label: a.format_note?.includes('320') || a.format_id?.includes('320') ? 'MP3 320kbps' : (a.format_note || a.format_id?.toUpperCase() || 'Audio'),
-        type: a.ext || (a.format_id?.includes('m4a') ? 'm4a' : 'mp3'),
-        note: a.format_note || (a.ext === 'm4a' ? 'Original AAC' : 'Universal MP3'),
-      }))
+    ? audioFormats.map((a) => {
+        let cleanLabel = 'MP3 320kbps';
+        if (a.format_note?.includes('320') || a.format_id?.includes('320')) {
+          cleanLabel = 'MP3 320kbps';
+        } else if (a.ext === 'm4a' || a.format_id?.includes('m4a')) {
+          cleanLabel = 'M4A Original';
+        } else if (a.format_note) {
+          cleanLabel = a.format_note;
+        }
+        return {
+          format_id: a.format_id,
+          label: cleanLabel,
+          type: a.ext || (a.format_id?.includes('m4a') ? 'm4a' : 'mp3'),
+          note: a.format_note || (a.ext === 'm4a' ? 'Original AAC' : 'Universal MP3'),
+          filesize: a.filesize_estimate,
+        };
+      })
     : defaultAudioFormats;
 
   const [selectedVideoId, setSelectedVideoId] = useState(videoList[0]?.format_id || 'best');
@@ -81,12 +108,16 @@ export default function FormatSelector({ formats, onDownload, isDownloading, act
   return (
     <div className="w-full space-y-4 font-sans">
       
-      {/* Symmetrical Twin Primary Type Selector: Video vs Audio (Pure Monochrome) */}
-      <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Media format choice">
+      {/* Symmetrical Sunken Segment Container: Video vs Audio */}
+      <div 
+        className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-black/5 dark:bg-black/40 border border-black/5 dark:border-white/5" 
+        role="radiogroup" 
+        aria-label="Media format choice"
+      >
         <AnimatedBackground
           value={selectedType}
           onValueChange={(val) => val && setSelectedType(val)}
-          className="rounded-[12px] bg-black/10 dark:bg-[#22222a]"
+          className="rounded-lg bg-white dark:bg-zinc-800 shadow-sm border border-black/10 dark:border-white/10"
           transition={{ type: 'spring', bounce: 0.15, duration: 0.35 }}
           enableHover={false}
         >
@@ -103,25 +134,25 @@ export default function FormatSelector({ formats, onDownload, isDownloading, act
                 setSelectedType('video');
               }
             }}
-            className="px-4 py-3 rounded-[12px] border-0 outline-none focus:outline-none focus:ring-0 ring-0 cursor-pointer transition-colors duration-150 flex items-center justify-between bg-black/5 dark:bg-[#16161a] text-zinc-900 dark:text-[#ededed] select-none"
+            className="px-3.5 py-2.5 rounded-lg border-0 outline-none focus:outline-none cursor-pointer transition-colors duration-150 flex items-center justify-between select-none"
           >
             <div className="flex items-center space-x-2.5">
-              <div className="w-7 h-7 rounded-[6px] bg-black/5 dark:bg-[#0e0e11] flex items-center justify-center">
-                <Film className="w-3.5 h-3.5 text-zinc-800 dark:text-[#ededed]" />
+              <div className="w-7 h-7 rounded-md bg-black/5 dark:bg-white/5 flex items-center justify-center">
+                <Film className="w-3.5 h-3.5 text-zinc-800 dark:text-zinc-200" />
               </div>
               <div>
-                <h4 className="text-[14px] font-medium text-zinc-900 dark:text-[#ededed]">Video</h4>
-                <p className="text-[11px] text-zinc-500 dark:text-[#71717a]">MP4 Container</p>
+                <h4 className="text-[13px] font-medium text-zinc-900 dark:text-zinc-100">Video</h4>
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400">MP4 Container</p>
               </div>
             </div>
 
             <div className="w-4 h-4 rounded-full flex items-center justify-center">
               {selectedType === 'video' ? (
-                <div className="w-4 h-4 rounded-full bg-zinc-900 text-white dark:bg-white dark:text-black flex items-center justify-center">
+                <div className="w-4 h-4 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950 flex items-center justify-center shadow-xs">
                   <Check className="w-2.5 h-2.5 stroke-[3]" />
                 </div>
               ) : (
-                <div className="w-4 h-4 rounded-full bg-black/10 dark:bg-[#27272e]" />
+                <div className="w-4 h-4 rounded-full bg-black/10 dark:bg-white/10" />
               )}
             </div>
           </div>
@@ -139,25 +170,25 @@ export default function FormatSelector({ formats, onDownload, isDownloading, act
                 setSelectedType('audio');
               }
             }}
-            className="px-4 py-3 rounded-[12px] border-0 outline-none focus:outline-none focus:ring-0 ring-0 cursor-pointer transition-colors duration-150 flex items-center justify-between bg-black/5 dark:bg-[#16161a] text-zinc-900 dark:text-[#ededed] select-none"
+            className="px-3.5 py-2.5 rounded-lg border-0 outline-none focus:outline-none cursor-pointer transition-colors duration-150 flex items-center justify-between select-none"
           >
             <div className="flex items-center space-x-2.5">
-              <div className="w-7 h-7 rounded-[6px] bg-black/5 dark:bg-[#0e0e11] flex items-center justify-center">
-                <Music className="w-3.5 h-3.5 text-zinc-800 dark:text-[#ededed]" />
+              <div className="w-7 h-7 rounded-md bg-black/5 dark:bg-white/5 flex items-center justify-center">
+                <Music className="w-3.5 h-3.5 text-zinc-800 dark:text-zinc-200" />
               </div>
               <div>
-                <h4 className="text-[14px] font-medium text-zinc-900 dark:text-[#ededed]">Audio</h4>
-                <p className="text-[11px] text-zinc-500 dark:text-[#71717a]">Audio Track</p>
+                <h4 className="text-[13px] font-medium text-zinc-900 dark:text-zinc-100">Audio</h4>
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400">Audio Track</p>
               </div>
             </div>
 
             <div className="w-4 h-4 rounded-full flex items-center justify-center">
               {selectedType === 'audio' ? (
-                <div className="w-4 h-4 rounded-full bg-zinc-900 text-white dark:bg-white dark:text-black flex items-center justify-center">
+                <div className="w-4 h-4 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950 flex items-center justify-center shadow-xs">
                   <Check className="w-2.5 h-2.5 stroke-[3]" />
                 </div>
               ) : (
-                <div className="w-4 h-4 rounded-full bg-black/10 dark:bg-[#27272e]" />
+                <div className="w-4 h-4 rounded-full bg-black/10 dark:bg-white/10" />
               )}
             </div>
           </div>
@@ -166,73 +197,67 @@ export default function FormatSelector({ formats, onDownload, isDownloading, act
 
       {/* Selectable Qualities Sub-Section */}
       <div className="space-y-1.5">
-        <span className="text-[11px] font-medium text-zinc-500 dark:text-[#71717a] uppercase tracking-wider">
+        <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
           {selectedType === 'video' ? 'Select Resolution' : 'Select Audio Format'}
         </span>
 
         {/* Video Qualities (e.g. 1080p, 720p, 480p, etc.) */}
         {selectedType === 'video' && (
           <div className="grid grid-cols-4 gap-2">
-            <AnimatedBackground
-              value={selectedVideoId}
-              onValueChange={(val) => val && setSelectedVideoId(val)}
-              className="rounded-[8px] bg-white shadow-sm"
-              transition={{ type: 'spring', bounce: 0.15, duration: 0.35 }}
-              enableHover={false}
-            >
-              {videoList.slice(0, 4).map((item) => {
-                const isSelected = selectedVideoId === item.format_id;
-                return (
-                  <button
-                    key={item.format_id}
-                    data-id={item.format_id}
-                    type="button"
-                    onClick={() => setSelectedVideoId(item.format_id)}
-                    className={`h-9 px-2 rounded-[8px] text-[13px] font-medium border-0 outline-none focus:outline-none focus:ring-0 ring-0 transition-colors duration-150 flex items-center justify-center truncate select-none bg-black/5 dark:bg-[#121216] ${
-                      isSelected
-                        ? 'text-black dark:text-black font-semibold'
-                        : 'text-zinc-600 dark:text-[#a1a1aa] hover:text-zinc-900 dark:hover:text-[#ededed]'
-                    }`}
-                    title={item.resolution}
-                  >
-                    {item.label}
-                  </button>
-                );
-              })}
-            </AnimatedBackground>
+            {videoList.slice(0, 4).map((item) => {
+              const isSelected = selectedVideoId === item.format_id;
+              const formattedSize = formatBytes(item.filesize);
+              return (
+                <button
+                  key={item.format_id}
+                  type="button"
+                  onClick={() => setSelectedVideoId(item.format_id)}
+                  className={`transition-all duration-150 flex flex-col items-center justify-center select-none ${
+                    isSelected
+                      ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950 font-medium border border-transparent shadow-sm rounded-xl py-2 px-3 text-xs'
+                      : 'bg-black/5 text-zinc-600 dark:bg-zinc-800/40 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 border border-black/5 dark:border-white/5 rounded-xl py-2 px-3 text-xs'
+                  }`}
+                  title={item.resolution}
+                >
+                  <span className="font-semibold">{item.label}</span>
+                  {formattedSize && (
+                    <span className={`text-[10px] font-mono mt-0.5 ${isSelected ? 'text-zinc-300 dark:text-zinc-600' : 'text-zinc-500 dark:text-zinc-500'}`}>
+                      {formattedSize}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         )}
 
         {/* Audio Qualities (e.g. MP3 320kbps, M4A Original) */}
         {selectedType === 'audio' && (
           <div className="grid grid-cols-2 gap-2">
-            <AnimatedBackground
-              value={selectedAudioId}
-              onValueChange={(val) => val && setSelectedAudioId(val)}
-              className="rounded-[8px] bg-white shadow-sm"
-              transition={{ type: 'spring', bounce: 0.15, duration: 0.35 }}
-              enableHover={false}
-            >
-              {audioList.map((item) => {
-                const isSelected = selectedAudioId === item.format_id;
-                return (
-                  <button
-                    key={item.format_id}
-                    data-id={item.format_id}
-                    type="button"
-                    onClick={() => setSelectedAudioId(item.format_id)}
-                    className={`h-9 px-3 rounded-[8px] text-[13px] font-medium border-0 outline-none focus:outline-none focus:ring-0 ring-0 transition-colors duration-150 flex items-center justify-center truncate select-none bg-black/5 dark:bg-[#121216] ${
-                      isSelected
-                        ? 'text-black dark:text-black font-semibold'
-                        : 'text-zinc-600 dark:text-[#a1a1aa] hover:text-zinc-900 dark:hover:text-[#ededed]'
-                    }`}
-                    title={item.note}
-                  >
-                    {item.label}
-                  </button>
-                );
-              })}
-            </AnimatedBackground>
+            {audioList.map((item) => {
+              const isSelected = selectedAudioId === item.format_id;
+              const formattedSize = formatBytes(item.filesize);
+              return (
+                <button
+                  key={item.format_id}
+                  type="button"
+                  onClick={() => setSelectedAudioId(item.format_id)}
+                  className={`transition-all duration-150 flex items-center justify-center space-x-2 select-none ${
+                    isSelected
+                      ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950 font-medium border border-transparent shadow-sm rounded-xl py-2 px-3 text-xs'
+                      : 'bg-black/5 text-zinc-600 dark:bg-zinc-800/40 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 border border-black/5 dark:border-white/5 rounded-xl py-2 px-3 text-xs'
+                  }`}
+                  title={item.note}
+                >
+                  <span className="font-semibold">{item.label}</span>
+                  {formattedSize && (
+                    <span className={`text-[10px] font-mono ${isSelected ? 'text-zinc-300 dark:text-zinc-600' : 'text-zinc-500 dark:text-zinc-500'}`}>
+                      • {formattedSize}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>

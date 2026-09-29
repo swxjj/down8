@@ -63,24 +63,24 @@ export function Btn4({
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       disabled={disabled || isActive}
-      whileHover={!isActive && !disabled ? { scale: 1.01 } : {}}
-      whileTap={!isActive && !disabled ? { scale: 0.98 } : {}}
-      className={`relative w-full h-11 rounded-full text-[14px] font-medium overflow-hidden select-none outline-none focus:outline-none transition-all duration-200 flex items-center justify-center ${className} ${
+      whileHover={!isActive && !disabled ? { scale: 1.005 } : {}}
+      whileTap={!isActive && !disabled ? { y: 1 } : {}}
+      className={`relative w-full py-2.5 h-10 rounded-xl text-xs font-semibold tracking-tight overflow-hidden select-none outline-none focus:outline-none transition-all duration-200 flex items-center justify-center gap-2 ${className} ${
         isCompleted
           ? 'bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 cursor-default'
           : isFailed
           ? 'bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 cursor-pointer'
           : isActive
-          ? 'bg-black/5 dark:bg-[#16161a] border border-black/10 dark:border-white/10 text-zinc-900 dark:text-zinc-100 cursor-wait'
+          ? 'bg-black/5 dark:bg-zinc-800/60 border border-black/10 dark:border-white/10 text-zinc-900 dark:text-zinc-100 cursor-wait'
           : disabled
-          ? 'bg-black/10 dark:bg-[#27272e] text-zinc-400 dark:text-[#71717a] border border-transparent cursor-not-allowed'
-          : 'bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-[#ededed] dark:hover:bg-white dark:text-[#0e0e11] shadow-sm cursor-pointer'
+          ? 'bg-black/10 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 border border-transparent cursor-not-allowed'
+          : 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950 shadow-sm hover:opacity-95 active:translate-y-[1px] cursor-pointer'
       }`}
     >
       {/* Animated progress bar fill during active download */}
       {isActive && (
         <motion.div
-          className="absolute inset-y-0 left-0 bg-black/10 dark:bg-white/10 pointer-events-none rounded-full"
+          className="absolute inset-y-0 left-0 bg-black/10 dark:bg-white/10 pointer-events-none rounded-xl"
           initial={{ width: 0 }}
           animate={{ width: `${percent}%` }}
           transition={{ duration: 0.35, ease: 'easeOut' }}

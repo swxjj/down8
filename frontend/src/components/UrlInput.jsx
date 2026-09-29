@@ -1,7 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Loader2, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import LiquidDots from './ui/liquid-dots';
 
-export default function UrlInput({ onFetch, isLoading, currentUrl = '' }) {
+export default function UrlInput({ 
+  onFetch, 
+  isLoading, 
+  currentUrl = '',
+  isDark = true,
+  isTraveling = false,
+  travelTarget = { x: 380, y1: -20, y2: 120 },
+}) {
   const [url, setUrl] = useState(currentUrl);
   const [prevCurrentUrl, setPrevCurrentUrl] = useState(currentUrl);
   const [pasteSuccess, setPasteSuccess] = useState(false);
@@ -44,7 +53,7 @@ export default function UrlInput({ onFetch, isLoading, currentUrl = '' }) {
 
   const handleLoad = () => {
     const trimmed = url.trim();
-    if (!trimmed || isLoading) return;
+    if (!trimmed || isLoading || isTraveling) return;
     onFetch(trimmed);
   };
 
@@ -106,25 +115,56 @@ export default function UrlInput({ onFetch, isLoading, currentUrl = '' }) {
             )}
           </button>
 
-          {/* Symmetrical Load Button */}
-          <button
-            type="submit"
-            disabled={!url.trim() || isLoading}
-            className={`h-11 rounded-full text-[14px] font-medium transition-all duration-150 flex items-center justify-center space-x-2 select-none active:scale-[0.98] ${
-              !url.trim() || isLoading
-                ? 'bg-black/5 dark:bg-[#27272e] text-zinc-400 dark:text-[#71717a] border border-black/5 dark:border-transparent cursor-not-allowed'
-                : 'bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-[#ededed] dark:hover:bg-white dark:text-[#0e0e11] shadow-sm'
-            }`}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin text-white dark:text-[#0e0e11]" />
-                <span>Loading...</span>
-              </>
-            ) : (
-              <span>Load</span>
-            )}
-          </button>
+          {/* Symmetrical Morphing Load Button -> LiquidDots */}
+          <div className="w-full flex justify-end">
+            <motion.button
+              id="load-button"
+              layout
+              type="submit"
+              disabled={!url.trim() || isLoading || isTraveling}
+              animate={{
+                width: isLoading || isTraveling ? 76 : '100%',
+              }}
+              transition={{ type: 'spring', stiffness: 350, damping: 26 }}
+              className={`h-11 rounded-full text-[14px] font-medium transition-colors duration-200 flex items-center justify-center select-none active:scale-[0.98] relative overflow-visible ${
+                isLoading || isTraveling
+                  ? 'bg-white/50 dark:bg-zinc-800/80 border border-black/10 dark:border-white/10 backdrop-blur-sm pointer-events-none cursor-default shadow-xs'
+                  : !url.trim()
+                    ? 'bg-black/5 dark:bg-[#27272e] text-zinc-400 dark:text-[#71717a] border border-black/5 dark:border-transparent cursor-not-allowed'
+                    : 'bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-[#ededed] dark:hover:bg-white dark:text-[#0e0e11] shadow-sm cursor-pointer'
+              }`}
+            >
+              <AnimatePresence mode="wait">
+                {!isLoading && !isTraveling ? (
+                  <motion.span
+                    key="idle-load"
+                    initial={{ opacity: 0, scale: 0.85 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.85 }}
+                    transition={{ duration: 0.15 }}
+                    className="truncate"
+                  >
+                    Load
+                  </motion.span>
+                ) : (
+                  <motion.div
+                    key="liquid-loader"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.18 }}
+                    className="flex items-center justify-center pointer-events-none"
+                  >
+                    <LiquidDots
+                      theme={isDark ? 'dark' : 'light'}
+                      isTraveling={isTraveling}
+                      travelTarget={travelTarget}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
+          </div>
         </div>
       </form>
     </div>

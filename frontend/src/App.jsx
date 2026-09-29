@@ -24,6 +24,11 @@ export default function App() {
   const [mediaInfo, setMediaInfo] = useState(null);
   const [error, setError] = useState(null);
   
+  // Travel animation state for liquid dots
+  const [isTraveling, setIsTraveling] = useState(false);
+  const [travelTarget, setTravelTarget] = useState({ x: 380, y1: -20, y2: 120 });
+  const previewAreaRef = useRef(null);
+  
   // Download task state
   const [activeTask, setActiveTask] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -130,17 +135,47 @@ export default function App() {
     if (!urlToFetch) return;
     setError(null);
     setIsLoadingInfo(true);
+    setIsTraveling(false);
     setCurrentUrl(urlToFetch);
 
     try {
       const data = await fetchMediaInfo(urlToFetch);
-      setMediaInfo(data);
+      
+      // Calculate dynamic travel vector from load-button to right-column preview area
+      const btnEl = document.getElementById('load-button');
+      const targetEl = previewAreaRef.current || document.getElementById('preview-area');
+      if (btnEl && targetEl) {
+        const btnRect = btnEl.getBoundingClientRect();
+        const targetRect = targetEl.getBoundingClientRect();
+        const btnCenterX = btnRect.left + btnRect.width / 2;
+        const btnCenterY = btnRect.top + btnRect.height / 2;
+
+        const targetX = targetRect.left + 36;
+        const targetY1 = targetRect.top + 36;
+        const targetY2 = targetRect.top + 140;
+
+        setTravelTarget({
+          x: targetX - btnCenterX,
+          y1: targetY1 - btnCenterY,
+          y2: targetY2 - btnCenterY,
+        });
+      }
+
+      // Trigger the travel animation
+      setIsTraveling(true);
+
+      // Choreographed arrival: dots travel across screen, then the two cards expand
+      setTimeout(() => {
+        setMediaInfo(data);
+        setIsLoadingInfo(false);
+        setIsTraveling(false);
+      }, 240);
     } catch (err) {
       console.error('Fetch media failed:', err);
       setError(err);
       setMediaInfo(null);
-    } finally {
       setIsLoadingInfo(false);
+      setIsTraveling(false);
     }
   };
 
@@ -372,6 +407,9 @@ export default function App() {
               onFetch={handleFetchMedia}
               isLoading={isLoadingInfo}
               currentUrl={currentUrl}
+              isDark={isDark}
+              isTraveling={isTraveling}
+              travelTarget={travelTarget}
             />
 
             {/* Error Alert (if any) */}
@@ -387,11 +425,16 @@ export default function App() {
           </div>
 
           {/* Right Side: Options & Preview */}
-          <div className="lg:col-span-6 flex flex-col justify-start">
+          <div 
+            id="preview-area"
+            ref={previewAreaRef}
+            className="lg:col-span-6 flex flex-col justify-start"
+          >
             
             {/* Loaded Media Preview & Formats with integrated btn-4 lifecycle */}
             {mediaInfo && !activeTask?.isZip && (
               <MediaPreview
+                key={mediaInfo.id || mediaInfo.url || currentUrl}
                 mediaInfo={mediaInfo}
                 onDownload={handleStartDownload}
                 onDownloadItem={handleDownloadItem}
