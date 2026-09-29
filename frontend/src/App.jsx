@@ -389,24 +389,26 @@ export default function App() {
           {/* Right Side: Options & Preview */}
           <div className="lg:col-span-6 flex flex-col justify-start">
             
-            {/* Active Download Progress Card (Bencho Step-Player) */}
-            {activeTask && (
-              <ProgressCard
-                task={activeTask}
-                onPreview={handleOpenPreview}
-                onDismiss={() => setActiveTask(null)}
-                onRetry={() => handleStartDownload(activeTask.options || {})}
-              />
-            )}
-
-            {/* Loaded Media Preview & Formats */}
-            {mediaInfo && !activeTask && (
+            {/* Loaded Media Preview & Formats with integrated btn-4 lifecycle */}
+            {mediaInfo && !activeTask?.isZip && (
               <MediaPreview
                 mediaInfo={mediaInfo}
                 onDownload={handleStartDownload}
                 onDownloadItem={handleDownloadItem}
                 onDownloadZip={handleDownloadZip}
                 isDownloading={isDownloading}
+                activeTask={activeTask}
+                onPreview={handleOpenPreview}
+              />
+            )}
+
+            {/* Active Download Progress Card (for ZIP archive creation or standalone tasks) */}
+            {activeTask && (!mediaInfo || activeTask.isZip) && (
+              <ProgressCard
+                task={activeTask}
+                onPreview={handleOpenPreview}
+                onDismiss={() => setActiveTask(null)}
+                onRetry={() => handleStartDownload(activeTask.options || {})}
               />
             )}
 

@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import LabelInput from './LabelInput';
 import { Loader2, Check } from 'lucide-react';
 
 export default function UrlInput({ onFetch, isLoading, currentUrl = '' }) {
@@ -64,18 +63,22 @@ export default function UrlInput({ onFetch, isLoading, currentUrl = '' }) {
   return (
     <div ref={containerRef} className="w-full flex flex-col items-center lg:items-start font-sans">
       <form onSubmit={handleSubmit} className="w-full flex flex-col items-center lg:items-start space-y-4">
-        {/* LabelInput with fixed notch */}
-        <div className="w-full flex justify-center lg:justify-start">
-          <LabelInput
-            field="paste link"
-            corner={14}
-            width={inputWidth}
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="https://..."
-            autoFocus
-          />
+        {/* Unbroken input container with clean external label */}
+        <div className="w-full flex flex-col items-start" style={{ width: inputWidth }}>
+          <label className="block text-xs font-mono tracking-wide text-zinc-600 dark:text-zinc-400 mb-1.5 ml-1">
+            paste link
+          </label>
+          <div className="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white/30 dark:bg-zinc-900/40 backdrop-blur-sm focus-within:border-black/25 dark:focus-within:border-white/30 transition-colors flex items-center px-4">
+            <input
+              type="text"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="https://..."
+              autoFocus
+              className="w-full h-12 bg-transparent border-0 outline-none text-[15px] text-zinc-900 placeholder:text-zinc-500 dark:text-white dark:placeholder:text-zinc-500 font-sans"
+            />
+          </div>
         </div>
 
         {/* Symmetrical Twin Buttons (Paste & Load) */}

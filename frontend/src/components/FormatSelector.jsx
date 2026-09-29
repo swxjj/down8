@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Download, Film, Music, Check } from 'lucide-react';
 import AnimatedBackground from './core/animated-background';
+import Btn4 from './ui/btn-4';
 
-export default function FormatSelector({ formats, onDownload, isDownloading }) {
+export default function FormatSelector({ formats, onDownload, isDownloading, activeTask }) {
   const [selectedType, setSelectedType] = useState('video'); // 'video' | 'audio'
 
   const defaultVideoFormats = [
@@ -236,24 +237,22 @@ export default function FormatSelector({ formats, onDownload, isDownloading }) {
         )}
       </div>
 
-      {/* Primary Download CTA */}
-      <button
-        type="button"
-        onClick={handleDownload}
-        disabled={isDownloading}
-        className={`w-full h-11 rounded-full text-[14px] font-medium flex items-center justify-center space-x-2 transition-all duration-150 select-none active:scale-[0.98] ${
-          isDownloading
-            ? 'bg-black/10 dark:bg-[#27272e] text-zinc-400 dark:text-[#71717a] cursor-not-allowed'
-            : 'bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-[#ededed] dark:hover:bg-white dark:text-[#0e0e11] shadow-sm'
-        }`}
-      >
-        <Download className="w-4 h-4" />
-        <span>
-          {selectedType === 'video' 
+      {/* Primary Download CTA: btn-4 from amicro */}
+      <Btn4
+        label={
+          selectedType === 'video' 
             ? `Download Video (${currentSelectedVideo?.label || '1080p'})` 
-            : `Download Audio (${currentSelectedAudio?.label || 'MP3'})`}
-        </span>
-      </button>
+            : `Download Audio (${currentSelectedAudio?.label || 'MP3'})`
+        }
+        selectedFormat={
+          selectedType === 'video' 
+            ? currentSelectedVideo?.label || '1080p' 
+            : currentSelectedAudio?.label || 'MP3'
+        }
+        onClick={handleDownload}
+        isDownloading={isDownloading}
+        activeTask={activeTask}
+      />
 
     </div>
   );

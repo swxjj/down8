@@ -8,7 +8,9 @@ export default function MediaPreview({
   onDownload, 
   onDownloadItem, 
   onDownloadZip, 
-  isDownloading 
+  isDownloading,
+  activeTask,
+  onPreview,
 }) {
   const [imageError, setImageError] = useState(false);
 
@@ -99,8 +101,22 @@ export default function MediaPreview({
           formats={formats}
           onDownload={onDownload}
           isDownloading={isDownloading}
+          activeTask={activeTask}
           embedded
         />
+
+        {activeTask?.status === 'completed' && onPreview && (
+          <div className="mt-3 flex justify-center">
+            <button
+              type="button"
+              onClick={() => onPreview(activeTask)}
+              className="text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors flex items-center space-x-1 cursor-pointer bg-transparent border-0"
+            >
+              <span>Preview in browser</span>
+              <span>&rarr;</span>
+            </button>
+          </div>
+        )}
       </div>
 
     </div>
