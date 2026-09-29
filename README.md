@@ -61,6 +61,19 @@ npm run dev
 
 ---
 
+## 🌐 Deploying to Vercel
+
+The frontend is ready for 1-click deployment on **Vercel**:
+
+1. Import the repository in [Vercel](https://vercel.com/new).
+2. Configure **Environment Variables** in Vercel project settings:
+   - `VITE_API_BASE_URL`: The public HTTPS URL of your running backend (e.g. deployed on Railway, Render, Fly.io, or VPS).
+3. Click **Deploy**. Vercel will build the frontend using `vercel.json` (`cd frontend && npm install && npm run build` -> `frontend/dist`).
+
+> **Note:** If you set the Vercel **Root Directory** to `frontend`, Vercel will automatically detect Vite and deploy cleanly using `frontend/vercel.json`.
+
+---
+
 ## 🧪 Testing & Verification
 
 Run the full automated test suite (37 unit, platform extractor, and E2E integration tests):
