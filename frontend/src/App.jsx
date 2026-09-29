@@ -7,6 +7,8 @@ import PreviewModal from './components/PreviewModal';
 import HistoryDrawer from './components/HistoryDrawer';
 import ErrorAlert from './components/ErrorAlert';
 import TextEffect from './components/core/text-effect';
+import DarkArcBandsBackground from './components/background-gradient/dark-arc-bands-background';
+import CoralGlowBackground from './components/background-gradient/coral-glow-background';
 import { 
   fetchMediaInfo, 
   startDownload, 
@@ -38,6 +40,37 @@ export default function App() {
   });
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   
+  // Theme state (isDark defaults to true)
+  const [isDark, setIsDark] = useState(() => {
+    try {
+      const saved = localStorage.getItem('theme');
+      if (saved) return saved === 'dark';
+      return true;
+    } catch {
+      return true;
+    }
+  });
+
+  const toggleTheme = () => {
+    setIsDark((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('theme', next ? 'dark' : 'light');
+      } catch (e) {
+        console.warn('Failed to persist theme', e);
+      }
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDark]);
+
   // In-browser Preview Modal state
   const [previewTask, setPreviewTask] = useState(null);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
@@ -298,10 +331,24 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-[#0e0e11] text-[#ededed] flex flex-col justify-between selection:bg-[#27272a] selection:text-white font-sans">
+    <div className="relative isolate h-screen w-screen overflow-hidden bg-transparent text-neutral-900 dark:text-[#ededed] flex flex-col justify-between selection:bg-[#27272a] selection:text-white font-sans transition-colors duration-500">
       
+      {/* Persistent Fixed Dual Theme Backgrounds with Smooth Cross-fading */}
+      <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden" aria-hidden="true">
+        <div className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${isDark ? 'opacity-100' : 'opacity-0'}`}>
+          <DarkArcBandsBackground className="w-full h-full min-h-screen" />
+        </div>
+        <div className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${isDark ? 'opacity-0' : 'opacity-100'}`}>
+          <CoralGlowBackground className="w-full h-full min-h-screen" />
+        </div>
+      </div>
+
       {/* Navigation Header */}
-      <Header onOpenHistory={() => setIsHistoryOpen(true)} />
+      <Header
+        onOpenHistory={() => setIsHistoryOpen(true)}
+        isDark={isDark}
+        toggleTheme={toggleTheme}
+      />
 
       {/* Main Split-Screen Workbench - Positioned higher up, Locked to Viewport */}
       <main className="flex-1 flex items-start justify-center max-w-6xl mx-auto px-4 sm:px-8 pt-6 sm:pt-10 lg:pt-12 w-full overflow-hidden">
@@ -314,7 +361,7 @@ export default function App() {
                 per="char"
                 preset="fade"
                 as="h1"
-                className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#ededed] leading-tight"
+                className="text-3xl sm:text-4xl font-semibold tracking-tight text-neutral-900 dark:text-[#ededed] leading-tight"
               >
                 download any media from the web
               </TextEffect>
