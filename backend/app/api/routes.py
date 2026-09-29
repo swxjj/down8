@@ -1,6 +1,7 @@
 import asyncio
 import json
 import mimetypes
+import re
 import shutil
 import time
 from typing import AsyncIterator
@@ -182,12 +183,13 @@ async def download_file(task_id: str):
 
     mime_type, _ = mimetypes.guess_type(file_path.name)
     mime_type = mime_type or "application/octet-stream"
+    filename = task.filename or file_path.name
 
     return FileResponse(
         path=str(file_path),
         media_type=mime_type,
-        filename=task.filename or file_path.name,
-        headers={"Content-Disposition": f'attachment; filename="{task.filename or file_path.name}"'},
+        filename=filename,
+        content_disposition_type="attachment",
     )
 
 
@@ -216,9 +218,11 @@ async def preview_media(task_id: str):
 
     mime_type, _ = mimetypes.guess_type(file_path.name)
     mime_type = mime_type or "video/mp4"
+    filename = task.filename or file_path.name
 
     return FileResponse(
         path=str(file_path),
         media_type=mime_type,
-        headers={"Content-Disposition": f'inline; filename="{task.filename or file_path.name}"'},
+        filename=filename,
+        content_disposition_type="inline",
     )

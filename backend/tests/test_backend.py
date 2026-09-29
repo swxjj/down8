@@ -171,3 +171,24 @@ def test_api_info_security_rejections(client: TestClient):
 def test_api_tasks_not_found(client: TestClient):
     response = client.get("/api/tasks/non-existent-uuid")
     assert response.status_code == 404
+
+
+@pytest.mark.anyio
+async def test_api_download_file_with_unicode_filename(client: TestClient, tmp_path):
+    # Create a mock completed task with unicode / emoji filename
+    dummy_file = tmp_path / "test_emoji_video.mp4"
+    dummy_file.write_bytes(b"dummy mp4 content bytes")
+
+    task_id = await task_manager.create_task()
+    await task_manager.update_task(
+        task_id,
+        status="completed",
+        file_path=dummy_file,
+        filename="🔴 ESTO ES UNA LOCURA (100% Gratis).mp4",
+        percent=100.0,
+    )
+
+    resp = client.get(f"/api/tasks/{task_id}/file")
+    assert resp.status_code == 200
+    assert resp.content == b"dummy mp4 content bytes"
+    assert "attachment" in resp.headers["content-disposition"]

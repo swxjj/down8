@@ -77,7 +77,22 @@ class TaskManager:
 
     def get_task_file(self, task_id: str) -> Optional[Path]:
         """Get path to the downloaded file if it exists."""
-        return self._task_files.get(task_id)
+        f = self._task_files.get(task_id)
+        if f and f.exists():
+            return f
+        # Fallback to inspecting task directory directly
+        from app.core.config import settings
+        task_dir = settings.DOWNLOAD_DIR / task_id
+        if task_dir.exists():
+            candidates = [
+                p for p in task_dir.iterdir()
+                if p.is_file() and not p.name.endswith(".part") and not p.name.endswith(".ytdl")
+            ]
+            if candidates:
+                best = max(candidates, key=lambda p: p.stat().st_size)
+                self._task_files[task_id] = best
+                return best
+        return None
 
     def get_all_task_ids(self) -> list[str]:
         """Return list of all task IDs."""

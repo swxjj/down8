@@ -140,9 +140,9 @@ class TwitterExtractor(BaseExtractor):
                 res = f"{f.get('width', '')}x{h}" if f.get("width") else f"{h}p"
                 tbr_val = f.get("tbr") or f.get("vbr")
                 bitrate_note = f" ({int(tbr_val)} kbps)" if tbr_val else ""
-                note = f"Animated GIF (MP4)" if is_gif else f"{h}p HD{bitrate_note}"
+                note = "Animated GIF (MP4)" if is_gif else f"{h}p HD{bitrate_note}"
 
-                has_audio = f.get("acodec") != "none" and f.get("acodec") is not None
+                has_audio = not is_gif
 
                 formats.append(
                     FormatOption(
@@ -178,10 +178,14 @@ class TwitterExtractor(BaseExtractor):
                 )
             )
 
-        # Audio-only extraction if video has an audio track
-        has_any_audio = any(f.has_audio for f in formats)
-        if has_any_audio and duration:
-            mp3_est = int((320.0 * 1000.0 / 8.0) * duration)
+        # Audio-only extraction if video has audio and is not a silent GIF
+        is_gif_check = raw_formats and any(
+            f.get("acodec") == "none" and not f.get("asr") for f in raw_formats
+        ) and (duration is not None and duration <= 15.0)
+        
+        if (formats or duration) and not is_gif_check:
+            duration_for_calc = duration or 30.0
+            mp3_est = int((320.0 * 1000.0 / 8.0) * duration_for_calc)
             formats.append(
                 FormatOption(
                     format_id="mp3-320",
@@ -190,6 +194,19 @@ class TwitterExtractor(BaseExtractor):
                     ext="mp3",
                     filesize_estimate=mp3_est,
                     format_note="Audio Extract (MP3 320kbps)",
+                    has_audio=True,
+                    has_video=False,
+                    type="audio",
+                )
+            )
+            formats.append(
+                FormatOption(
+                    format_id="m4a",
+                    resolution=None,
+                    height=None,
+                    ext="m4a",
+                    filesize_estimate=int(mp3_est * 0.6),
+                    format_note="Original AAC Stream",
                     has_audio=True,
                     has_video=False,
                     type="audio",
@@ -216,29 +233,63 @@ class TwitterExtractor(BaseExtractor):
         opts = self.get_ytdl_opts(request.url, is_download=True)
         opts["outtmpl"] = output_template
 
-        if request.media_type == "audio" or request.format_id in ("mp3-320", "audio"):
-            opts.update({
-                "format": "bestaudio/best",
-                "postprocessors": [
-                    {
-                        "key": "FFmpegExtractAudio",
-                        "preferredcodec": "mp3",
-                        "preferredquality": "320",
-                    }
-                ],
-            })
+        if request.media_type == "audio" or request.format_id in ("mp3-320", "audio", "m4a"):
+            if request.format_id == "m4a" or request.audio_format == "m4a":
+                opts.update({
+                    "format": "bestaudio[ext=m4a]/bestaudio/best",
+                    "postprocessors": [
+                        {
+                            "key": "FFmpegExtractAudio",
+                            "preferredcodec": "m4a",
+                        }
+                    ],
+                })
+            else:
+                opts.update({
+                    "format": "bestaudio/best",
+                    "postprocessors": [
+                        {
+                            "key": "FFmpegExtractAudio",
+                            "preferredcodec": "mp3",
+                            "preferredquality": "320",
+                        }
+                    ],
+                })
             return opts
 
-        # Choose highest bitrate variant or requested format
-        if request.format_id == "best":
-            opts.update({
-                "format": "bestvideo+bestaudio/best",
-                "merge_output_format": "mp4",
-            })
+        height_map = {
+            "2160p": 2160,
+            "1440p": 1440,
+            "1080p": 1080,
+            "720p": 720,
+            "480p": 480,
+            "360p": 360,
+            "270p": 270,
+        }
+
+        fmt_id = (request.format_id or "best").strip().lower()
+        requested_height = height_map.get(fmt_id)
+
+        if requested_height:
+            fmt_str = (
+                f"bestvideo[height<={requested_height}]+bestaudio/"
+                f"best[height<={requested_height}]/"
+                f"bestvideo+bestaudio/best"
+            )
+        elif fmt_id in ("best", "video"):
+            fmt_str = "bestvideo+bestaudio/best[ext=mp4]/best"
         else:
-            opts.update({
-                "format": f"{request.format_id}+bestaudio/best",
-                "merge_output_format": "mp4",
-            })
+            fmt_str = f"{request.format_id}+bestaudio/{request.format_id}/bestvideo+bestaudio/best"
+
+        opts.update({
+            "format": fmt_str,
+            "merge_output_format": "mp4",
+            "postprocessors": [
+                {
+                    "key": "FFmpegVideoRemuxer",
+                    "preferedformat": "mp4",
+                }
+            ],
+        })
 
         return opts
