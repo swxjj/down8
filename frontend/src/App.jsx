@@ -6,6 +6,7 @@ import ProgressCard from './components/ProgressCard';
 import PreviewModal from './components/PreviewModal';
 import HistoryDrawer from './components/HistoryDrawer';
 import ErrorAlert from './components/ErrorAlert';
+import FeaturesGrid from './components/FeaturesGrid';
 import { 
   fetchMediaInfo, 
   startDownload, 
@@ -297,13 +298,13 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-[#0e0e11] text-[#ededed] flex flex-col justify-between selection:bg-[#27272a] selection:text-white font-sans">
+    <div className="min-h-screen w-full bg-[#0e0e11] text-[#ededed] flex flex-col justify-between selection:bg-[#27272a] selection:text-white font-sans overflow-x-hidden">
       
       {/* Navigation Header */}
       <Header onOpenHistory={() => setIsHistoryOpen(true)} />
 
-      {/* Main Split-Screen Workbench - Positioned higher up, Locked to Viewport */}
-      <main className="flex-1 flex items-start justify-center max-w-6xl mx-auto px-4 sm:px-8 pt-6 sm:pt-10 lg:pt-12 w-full overflow-hidden">
+      {/* Main Split-Screen Workbench - Positioned higher up */}
+      <main className="flex-1 flex items-start justify-center max-w-6xl mx-auto px-4 sm:px-8 pt-6 sm:pt-10 lg:pt-12 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 w-full items-start">
           
           {/* Left Side: Title + Input Bar + Buttons (Clean vertical stack, no gaps) */}
@@ -373,6 +374,9 @@ export default function App() {
 
         </div>
       </main>
+
+      {/* Features Grid - Animated Hover Cards */}
+      <FeaturesGrid />
 
       {/* Global In-Browser Media Preview Modal */}
       <PreviewModal
