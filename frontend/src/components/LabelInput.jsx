@@ -137,17 +137,9 @@ export function LabelInput({
       data-up={up}
       data-focus={focus}
       data-filled={currentValue.length > 0}
-      style={{
-        "--font-ui": "'Montserrat', sans-serif",
-        "--ink": "#ededed",
-        "--ink-rgb": "237, 237, 237",
-        "--ink-3": "#a1a1aa",
-        "--ink-4": "#71717a",
-        "--fill-on": "#ededed",
-      }}
     >
       <div
-        className="lbi-box"
+        className="lbi-box transition-colors border-black/10 dark:border-white/15 focus-within:border-black/25 dark:focus-within:border-white/30"
         style={{ width: W, height: H, borderRadius: r, "--lbi-x": `${lx}px` }}
       >
         <svg className="lbi-ring" width={W} height={H} viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
@@ -157,7 +149,15 @@ export function LabelInput({
           <path className="lbi-gap" d={gapR} pathLength={1} />
         </svg>
 
-        <label className="lbi-label" htmlFor={id} ref={lab}>
+        <label
+          className={`lbi-label transition-all ${
+            up
+              ? "bg-zinc-200/80 text-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 font-mono text-[11px]"
+              : "text-zinc-500 dark:text-zinc-400"
+          }`}
+          htmlFor={id}
+          ref={lab}
+        >
           {[...label].map((ch, i) => (
             <span key={i} style={{ "--i": i }}>{ch}</span>
           ))}
@@ -166,7 +166,7 @@ export function LabelInput({
         <input
           ref={input}
           id={id}
-          className="lbi-field"
+          className="lbi-field text-zinc-900 placeholder:text-zinc-500 dark:text-white dark:placeholder:text-zinc-500"
           data-flip={flip % 2}
           type={secret && !show ? "password" : secret ? "text" : field === "Email" ? "email" : "text"}
           value={currentValue}

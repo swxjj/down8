@@ -351,7 +351,7 @@ export default function App() {
       />
 
       {/* Main Split-Screen Workbench - Positioned higher up, Locked to Viewport */}
-      <main className="flex-1 flex items-start justify-center max-w-6xl mx-auto px-4 sm:px-8 pt-6 sm:pt-10 lg:pt-12 w-full overflow-hidden">
+      <main className="flex-1 flex items-start justify-center max-w-5xl mx-auto px-6 pt-6 sm:pt-10 lg:pt-12 w-full overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 w-full items-start">
           
           {/* Left Side: Title + Input Bar + Buttons (Clean vertical stack, no gaps) */}
@@ -410,13 +410,13 @@ export default function App() {
               />
             )}
 
-            {/* Empty State: Symmetrically matches the Left Column */}
+            {/* Empty State: Symmetrically matches the Left Column with Adaptive Frosted Glass */}
             {!mediaInfo && !activeTask && (
-              <div className="w-full min-h-[220px] rounded-[16px] border border-dashed border-[#27272e] p-8 flex flex-col items-center justify-center text-center space-y-2 bg-[#16161a]/25">
-                <p className="text-[15px] font-medium text-[#71717a]">
+              <div className="w-full min-h-[220px] bg-white/40 dark:bg-zinc-900/60 backdrop-blur-md border border-black/10 dark:border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center text-center">
+                <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
                   preview will appear here
                 </p>
-                <p className="text-[12px] text-[#52525b] max-w-xs leading-relaxed">
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 text-center max-w-xs mt-1.5 leading-relaxed">
                   Paste a link on the left to select audio or video and download.
                 </p>
               </div>

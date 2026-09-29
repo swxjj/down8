@@ -85,7 +85,7 @@ export default function FormatSelector({ formats, onDownload, isDownloading }) {
         <AnimatedBackground
           value={selectedType}
           onValueChange={(val) => val && setSelectedType(val)}
-          className="rounded-[12px] bg-[#22222a]"
+          className="rounded-[12px] bg-black/10 dark:bg-[#22222a]"
           transition={{ type: 'spring', bounce: 0.15, duration: 0.35 }}
           enableHover={false}
         >
@@ -102,25 +102,25 @@ export default function FormatSelector({ formats, onDownload, isDownloading }) {
                 setSelectedType('video');
               }
             }}
-            className="px-4 py-3 rounded-[12px] border-0 outline-none focus:outline-none focus:ring-0 ring-0 cursor-pointer transition-colors duration-150 flex items-center justify-between bg-[#16161a] text-[#ededed] select-none"
+            className="px-4 py-3 rounded-[12px] border-0 outline-none focus:outline-none focus:ring-0 ring-0 cursor-pointer transition-colors duration-150 flex items-center justify-between bg-black/5 dark:bg-[#16161a] text-zinc-900 dark:text-[#ededed] select-none"
           >
             <div className="flex items-center space-x-2.5">
-              <div className="w-7 h-7 rounded-[6px] bg-[#0e0e11] flex items-center justify-center">
-                <Film className="w-3.5 h-3.5 text-[#ededed]" />
+              <div className="w-7 h-7 rounded-[6px] bg-black/5 dark:bg-[#0e0e11] flex items-center justify-center">
+                <Film className="w-3.5 h-3.5 text-zinc-800 dark:text-[#ededed]" />
               </div>
               <div>
-                <h4 className="text-[14px] font-medium text-[#ededed]">Video</h4>
-                <p className="text-[11px] text-[#71717a]">MP4 Container</p>
+                <h4 className="text-[14px] font-medium text-zinc-900 dark:text-[#ededed]">Video</h4>
+                <p className="text-[11px] text-zinc-500 dark:text-[#71717a]">MP4 Container</p>
               </div>
             </div>
 
             <div className="w-4 h-4 rounded-full flex items-center justify-center">
               {selectedType === 'video' ? (
-                <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center text-black">
+                <div className="w-4 h-4 rounded-full bg-zinc-900 text-white dark:bg-white dark:text-black flex items-center justify-center">
                   <Check className="w-2.5 h-2.5 stroke-[3]" />
                 </div>
               ) : (
-                <div className="w-4 h-4 rounded-full bg-[#27272e]" />
+                <div className="w-4 h-4 rounded-full bg-black/10 dark:bg-[#27272e]" />
               )}
             </div>
           </div>
@@ -138,25 +138,25 @@ export default function FormatSelector({ formats, onDownload, isDownloading }) {
                 setSelectedType('audio');
               }
             }}
-            className="px-4 py-3 rounded-[12px] border-0 outline-none focus:outline-none focus:ring-0 ring-0 cursor-pointer transition-colors duration-150 flex items-center justify-between bg-[#16161a] text-[#ededed] select-none"
+            className="px-4 py-3 rounded-[12px] border-0 outline-none focus:outline-none focus:ring-0 ring-0 cursor-pointer transition-colors duration-150 flex items-center justify-between bg-black/5 dark:bg-[#16161a] text-zinc-900 dark:text-[#ededed] select-none"
           >
             <div className="flex items-center space-x-2.5">
-              <div className="w-7 h-7 rounded-[6px] bg-[#0e0e11] flex items-center justify-center">
-                <Music className="w-3.5 h-3.5 text-[#ededed]" />
+              <div className="w-7 h-7 rounded-[6px] bg-black/5 dark:bg-[#0e0e11] flex items-center justify-center">
+                <Music className="w-3.5 h-3.5 text-zinc-800 dark:text-[#ededed]" />
               </div>
               <div>
-                <h4 className="text-[14px] font-medium text-[#ededed]">Audio</h4>
-                <p className="text-[11px] text-[#71717a]">Audio Track</p>
+                <h4 className="text-[14px] font-medium text-zinc-900 dark:text-[#ededed]">Audio</h4>
+                <p className="text-[11px] text-zinc-500 dark:text-[#71717a]">Audio Track</p>
               </div>
             </div>
 
             <div className="w-4 h-4 rounded-full flex items-center justify-center">
               {selectedType === 'audio' ? (
-                <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center text-black">
+                <div className="w-4 h-4 rounded-full bg-zinc-900 text-white dark:bg-white dark:text-black flex items-center justify-center">
                   <Check className="w-2.5 h-2.5 stroke-[3]" />
                 </div>
               ) : (
-                <div className="w-4 h-4 rounded-full bg-[#27272e]" />
+                <div className="w-4 h-4 rounded-full bg-black/10 dark:bg-[#27272e]" />
               )}
             </div>
           </div>
@@ -165,7 +165,7 @@ export default function FormatSelector({ formats, onDownload, isDownloading }) {
 
       {/* Selectable Qualities Sub-Section */}
       <div className="space-y-1.5">
-        <span className="text-[11px] font-medium text-[#71717a] uppercase tracking-wider">
+        <span className="text-[11px] font-medium text-zinc-500 dark:text-[#71717a] uppercase tracking-wider">
           {selectedType === 'video' ? 'Select Resolution' : 'Select Audio Format'}
         </span>
 
@@ -175,7 +175,7 @@ export default function FormatSelector({ formats, onDownload, isDownloading }) {
             <AnimatedBackground
               value={selectedVideoId}
               onValueChange={(val) => val && setSelectedVideoId(val)}
-              className="rounded-[8px] bg-white"
+              className="rounded-[8px] bg-white shadow-sm"
               transition={{ type: 'spring', bounce: 0.15, duration: 0.35 }}
               enableHover={false}
             >
@@ -187,10 +187,10 @@ export default function FormatSelector({ formats, onDownload, isDownloading }) {
                     data-id={item.format_id}
                     type="button"
                     onClick={() => setSelectedVideoId(item.format_id)}
-                    className={`h-9 px-2 rounded-[8px] text-[13px] font-medium border-0 outline-none focus:outline-none focus:ring-0 ring-0 transition-colors duration-150 flex items-center justify-center truncate select-none bg-[#121216] ${
+                    className={`h-9 px-2 rounded-[8px] text-[13px] font-medium border-0 outline-none focus:outline-none focus:ring-0 ring-0 transition-colors duration-150 flex items-center justify-center truncate select-none bg-black/5 dark:bg-[#121216] ${
                       isSelected
-                        ? 'text-black font-semibold'
-                        : 'text-[#a1a1aa] hover:text-[#ededed]'
+                        ? 'text-black dark:text-black font-semibold'
+                        : 'text-zinc-600 dark:text-[#a1a1aa] hover:text-zinc-900 dark:hover:text-[#ededed]'
                     }`}
                     title={item.resolution}
                   >
@@ -208,7 +208,7 @@ export default function FormatSelector({ formats, onDownload, isDownloading }) {
             <AnimatedBackground
               value={selectedAudioId}
               onValueChange={(val) => val && setSelectedAudioId(val)}
-              className="rounded-[8px] bg-white"
+              className="rounded-[8px] bg-white shadow-sm"
               transition={{ type: 'spring', bounce: 0.15, duration: 0.35 }}
               enableHover={false}
             >
@@ -220,10 +220,10 @@ export default function FormatSelector({ formats, onDownload, isDownloading }) {
                     data-id={item.format_id}
                     type="button"
                     onClick={() => setSelectedAudioId(item.format_id)}
-                    className={`h-9 px-3 rounded-[8px] text-[13px] font-medium border-0 outline-none focus:outline-none focus:ring-0 ring-0 transition-colors duration-150 flex items-center justify-center truncate select-none bg-[#121216] ${
+                    className={`h-9 px-3 rounded-[8px] text-[13px] font-medium border-0 outline-none focus:outline-none focus:ring-0 ring-0 transition-colors duration-150 flex items-center justify-center truncate select-none bg-black/5 dark:bg-[#121216] ${
                       isSelected
-                        ? 'text-black font-semibold'
-                        : 'text-[#a1a1aa] hover:text-[#ededed]'
+                        ? 'text-black dark:text-black font-semibold'
+                        : 'text-zinc-600 dark:text-[#a1a1aa] hover:text-zinc-900 dark:hover:text-[#ededed]'
                     }`}
                     title={item.note}
                   >
@@ -243,8 +243,8 @@ export default function FormatSelector({ formats, onDownload, isDownloading }) {
         disabled={isDownloading}
         className={`w-full h-11 rounded-full text-[14px] font-medium flex items-center justify-center space-x-2 transition-all duration-150 select-none active:scale-[0.98] ${
           isDownloading
-            ? 'bg-[#27272e] text-[#71717a] cursor-not-allowed'
-            : 'bg-[#ededed] hover:bg-white text-[#0e0e11] shadow-sm'
+            ? 'bg-black/10 dark:bg-[#27272e] text-zinc-400 dark:text-[#71717a] cursor-not-allowed'
+            : 'bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-[#ededed] dark:hover:bg-white dark:text-[#0e0e11] shadow-sm'
         }`}
       >
         <Download className="w-4 h-4" />

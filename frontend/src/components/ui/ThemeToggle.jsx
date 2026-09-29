@@ -7,8 +7,8 @@ export function ThemeToggle({ isDark, toggleTheme }) {
     <button
       type="button"
       onClick={toggleTheme}
-      className="relative flex items-center justify-center h-[36px] px-4 rounded-[40px] bg-black/[0.04] dark:bg-white/[0.04] hover:bg-black/[0.08] dark:hover:bg-white/[0.08] border border-black/10 dark:border-white/10 cursor-pointer transition-colors duration-150 select-none outline-none focus:outline-none"
-      aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+      className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer select-none outline-none focus:outline-none"
+      aria-label="Toggle theme"
     >
       <div className="w-4 h-4 relative flex items-center justify-center">
         <AnimatePresence mode="popLayout" initial={false}>
@@ -21,7 +21,7 @@ export function ThemeToggle({ isDark, toggleTheme }) {
               transition={{ duration: 0.2 }}
               className="flex items-center justify-center"
             >
-              <Moon className="w-4 h-4 text-zinc-100" />
+              <Moon className="w-4 h-4 text-zinc-200" />
             </motion.div>
           ) : (
             <motion.div
@@ -32,14 +32,11 @@ export function ThemeToggle({ isDark, toggleTheme }) {
               transition={{ duration: 0.2 }}
               className="flex items-center justify-center"
             >
-              <Sun className="w-4 h-4 text-amber-500" />
+              <Sun className="w-4 h-4 text-zinc-700" />
             </motion.div>
           )}
         </AnimatePresence>
       </div>
-      <span className="font-medium tracking-tight text-[13px] ml-2 text-zinc-800 dark:text-zinc-200">
-        Theme
-      </span>
     </button>
   );
 }

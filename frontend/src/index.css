@@ -138,17 +138,29 @@
    halo — see the note on .gen. */
 .lbi {
   --font-ui: 'Montserrat', sans-serif;
-  --ink: #ededed;
-  --ink-rgb: 237, 237, 237;
-  --ink-3: #a1a1aa;
+  --ink: #18181b;
+  --ink-rgb: 24, 24, 27;
+  --ink-3: #52525b;
   --ink-4: #71717a;
-  --fill-on: #ededed;
+  --fill-on: #18181b;
+  --ring-stroke: rgba(0, 0, 0, 0.10);
+  --ring-stroke-focus: rgba(0, 0, 0, 0.25);
   position: relative;
   font-family: var(--font-ui);
   display: grid;
   place-items: center;
   /* room above the field for the lifted label */
   padding-top: 10px;
+}
+
+.dark .lbi {
+  --ink: #ededed;
+  --ink-rgb: 237, 237, 237;
+  --ink-3: #a1a1aa;
+  --ink-4: #71717a;
+  --fill-on: #ededed;
+  --ring-stroke: rgba(255, 255, 255, 0.15);
+  --ring-stroke-focus: rgba(255, 255, 255, 0.30);
 }
 
 /* no fill: the field is only its outline */
@@ -171,19 +183,19 @@
 
 .lbi-ring path {
   fill: none;
-  stroke: rgba(var(--ink-rgb), 0.18);
+  stroke: var(--ring-stroke, rgba(0, 0, 0, 0.10));
   stroke-width: 1;
   stroke-linecap: butt;
   transition: stroke 240ms ease, stroke-width 240ms ease;
 }
 
 .lbi[data-focus="true"] .lbi-ring path {
-  stroke: var(--ink);
+  stroke: var(--ring-stroke-focus, rgba(0, 0, 0, 0.25));
   stroke-width: 1.5;
 }
 
 .lbi[data-filled="true"]:not([data-focus="true"]) .lbi-ring path {
-  stroke: rgba(var(--ink-rgb), 0.3);
+  stroke: var(--ring-stroke, rgba(0, 0, 0, 0.10));
 }
 
 /* the gap: whole at rest, parting from its middle when the
@@ -217,18 +229,16 @@
   color: var(--ink-4);
   transform-origin: left center;
   transform: translateY(-50%);
-  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1), color 200ms ease;
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1), color 200ms ease, background-color 200ms ease;
   cursor: text;
   -webkit-user-select: none;
   user-select: none;
 }
 
 .lbi[data-up="true"] .lbi-label {
-  transform: translateY(-50%) translateY(-26px) scale(0.78);
-  color: var(--ink-3);
-  background-color: #0e0e11;
-  padding: 0 6px;
-  border-radius: 3px;
+  transform: translateY(-50%) translateY(-26px);
+  padding: 1px 7px;
+  border-radius: 4px;
   z-index: 2;
 }
 
@@ -255,7 +265,6 @@
   font: inherit;
   font-size: 15px;
   letter-spacing: -0.005em;
-  color: var(--fill-on, var(--ink));
   outline: none;
 }
 

@@ -90,7 +90,7 @@ export default function UrlInput({ onFetch, isLoading, currentUrl = '' }) {
             className={`h-11 rounded-full text-[14px] font-medium border transition-all duration-150 flex items-center justify-center space-x-2 select-none active:scale-[0.98] ${
               pasteSuccess
                 ? 'bg-[#1c2e26] border-[#2dd4bf]/40 text-[#2dd4bf]'
-                : 'bg-[#16161a] hover:bg-[#202026] text-[#ededed] border-[#27272e]'
+                : 'bg-white/40 dark:bg-[#16161a] hover:bg-white/60 dark:hover:bg-[#202026] text-zinc-800 dark:text-[#ededed] border-black/10 dark:border-[#27272e] backdrop-blur-sm shadow-sm dark:shadow-none'
             }`}
           >
             {pasteSuccess ? (
@@ -109,13 +109,13 @@ export default function UrlInput({ onFetch, isLoading, currentUrl = '' }) {
             disabled={!url.trim() || isLoading}
             className={`h-11 rounded-full text-[14px] font-medium transition-all duration-150 flex items-center justify-center space-x-2 select-none active:scale-[0.98] ${
               !url.trim() || isLoading
-                ? 'bg-[#27272e] text-[#71717a] border border-transparent cursor-not-allowed'
-                : 'bg-[#ededed] hover:bg-white text-[#0e0e11] shadow-sm'
+                ? 'bg-black/5 dark:bg-[#27272e] text-zinc-400 dark:text-[#71717a] border border-black/5 dark:border-transparent cursor-not-allowed'
+                : 'bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-[#ededed] dark:hover:bg-white dark:text-[#0e0e11] shadow-sm'
             }`}
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin text-[#0e0e11]" />
+                <Loader2 className="w-4 h-4 animate-spin text-white dark:text-[#0e0e11]" />
                 <span>Loading...</span>
               </>
             ) : (

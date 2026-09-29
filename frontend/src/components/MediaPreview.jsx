@@ -29,8 +29,8 @@ export default function MediaPreview({
     return (
       <div className="w-full space-y-4 font-sans">
         {/* Compact confirmation header */}
-        <div className="bg-[#16161a] border border-[#27272e] rounded-[16px] px-4 py-3 flex items-center space-x-3.5">
-          <div className="w-14 h-11 rounded-[8px] overflow-hidden bg-[#0e0e11] border border-[#27272e] flex-shrink-0 flex items-center justify-center">
+        <div className="bg-white/70 dark:bg-[#16161a] border border-black/10 dark:border-[#27272e] rounded-[16px] px-4 py-3 flex items-center space-x-3.5 backdrop-blur-md">
+          <div className="w-14 h-11 rounded-[8px] overflow-hidden bg-black/5 dark:bg-[#0e0e11] border border-black/10 dark:border-[#27272e] flex-shrink-0 flex items-center justify-center">
             {thumbnail && !imageError ? (
               <img
                 src={thumbnail}
@@ -39,14 +39,14 @@ export default function MediaPreview({
                 className="w-full h-full object-cover"
               />
             ) : (
-              <Film className="w-4 h-4 text-[#71717a]" />
+              <Film className="w-4 h-4 text-zinc-400 dark:text-[#71717a]" />
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="text-[14px] font-medium text-[#ededed] truncate" title={title}>
+            <h3 className="text-[14px] font-medium text-zinc-900 dark:text-[#ededed] truncate" title={title}>
               {title || 'Carousel Collection'}
             </h3>
-            <p className="text-[12px] text-[#71717a] mt-0.5 capitalize">
+            <p className="text-[12px] text-zinc-500 dark:text-[#71717a] mt-0.5 capitalize">
               {platform || 'Social'} • {carousel_items.length} items
             </p>
           </div>
@@ -64,11 +64,11 @@ export default function MediaPreview({
 
   // Single video or audio stream: Download options are the primary focus!
   return (
-    <div className="w-full bg-[#16161a] border border-[#27272e] text-[#ededed] rounded-[16px] overflow-hidden font-sans shadow-sm">
+    <div className="w-full bg-white/70 dark:bg-[#16161a] border border-black/10 dark:border-[#27272e] text-zinc-900 dark:text-[#ededed] backdrop-blur-md rounded-[16px] overflow-hidden font-sans shadow-sm">
       
       {/* Compact Top Media Strip - Just enough to confirm the media, zero social clutter */}
-      <div className="px-5 py-3.5 bg-[#121216] border-b border-[#27272e] flex items-center space-x-3.5">
-        <div className="w-14 h-11 rounded-[8px] overflow-hidden bg-[#0e0e11] border border-[#27272e] flex-shrink-0 flex items-center justify-center">
+      <div className="px-5 py-3.5 bg-black/[0.03] dark:bg-[#121216] border-b border-black/10 dark:border-[#27272e] flex items-center space-x-3.5">
+        <div className="w-14 h-11 rounded-[8px] overflow-hidden bg-black/5 dark:bg-[#0e0e11] border border-black/10 dark:border-[#27272e] flex-shrink-0 flex items-center justify-center">
           {thumbnail && !imageError ? (
             <img
               src={thumbnail}
@@ -77,15 +77,15 @@ export default function MediaPreview({
               className="w-full h-full object-cover"
             />
           ) : (
-            <Film className="w-4 h-4 text-[#71717a]" />
+            <Film className="w-4 h-4 text-zinc-400 dark:text-[#71717a]" />
           )}
         </div>
 
         <div className="min-w-0 flex-1">
-          <h3 className="text-[14px] font-medium text-[#ededed] truncate" title={title}>
+          <h3 className="text-[14px] font-medium text-zinc-900 dark:text-[#ededed] truncate" title={title}>
             {title || 'Media Stream'}
           </h3>
-          <p className="text-[12px] text-[#71717a] mt-0.5 flex items-center space-x-2">
+          <p className="text-[12px] text-zinc-500 dark:text-[#71717a] mt-0.5 flex items-center space-x-2">
             {duration_formatted && <span>{duration_formatted}</span>}
             {duration_formatted && platform && <span>•</span>}
             <span className="capitalize">{platform || 'Direct stream'}</span>
