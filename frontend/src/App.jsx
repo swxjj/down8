@@ -12,14 +12,8 @@ import {
   startZipDownload, 
   subscribeToTaskEvents 
 } from './services/api';
-import { 
-  Sparkles, 
-  Music, 
-  Archive, 
-  Film 
-} from 'lucide-react';
 
-const STORAGE_KEY = 'omnimedia_download_history';
+const STORAGE_KEY = 'down8_download_history';
 
 export default function App() {
   const [currentUrl, setCurrentUrl] = useState('');
@@ -128,16 +122,16 @@ export default function App() {
       title: mediaInfo.title,
       platform: mediaInfo.platform,
       format: options.media_type === 'audio' 
-        ? (options.audio_format?.toUpperCase() || 'MP3 320kbps') 
-        : (options.format_id || '1080p MP4'),
+        ? 'MP3 320kbps' 
+        : 'MP4 Best Quality',
       media_type: options.media_type,
       status: 'connecting',
-      status_text: 'Initiating download stream...',
+      status_text: 'Resolving media stream...',
       progress: 5,
       percent: 5,
       speed: 'Connecting...',
       eta: 'Calculating...',
-      filename: `${mediaInfo.title || 'media'}.${options.media_type === 'audio' ? (options.audio_format || 'mp3') : 'mp4'}`,
+      filename: `${mediaInfo.title || 'media'}.${options.media_type === 'audio' ? 'mp3' : 'mp4'}`,
       options,
     };
 
@@ -146,8 +140,8 @@ export default function App() {
     try {
       const result = await startDownload({
         url: mediaInfo.url || currentUrl,
-        format_id: options.format_id,
-        media_type: options.media_type,
+        format_id: options.format_id || 'best',
+        media_type: options.media_type || 'video',
         audio_format: options.audio_format,
         item_index: options.item_index,
       });
@@ -208,7 +202,7 @@ export default function App() {
   const handleDownloadItem = (item, index) => {
     handleStartDownload({
       media_type: item.type === 'video' ? 'video' : 'photo',
-      format_id: 'original',
+      format_id: 'best',
       item_index: index,
     });
   };
@@ -222,18 +216,18 @@ export default function App() {
 
     const initialTask = {
       task_id: 'pending-zip-' + Date.now(),
-      title: `${mediaInfo.title || 'Carousel Collection'} (ZIP Bundle)`,
+      title: `${mediaInfo.title || 'Collection'} (ZIP)`,
       platform: mediaInfo.platform,
       format: `ZIP (${selected_ids.length} items)`,
       media_type: 'zip',
       isZip: true,
       status: 'connecting',
-      status_text: 'Preparing carousel package manifest...',
+      status_text: 'Preparing archive manifest...',
       progress: 8,
       percent: 8,
       speed: 'Preparing...',
       eta: '00:10',
-      filename: `${(mediaInfo.title || 'Carousel_Media').replace(/[^a-zA-Z0-9_-]/g, '_')}_Bundle.zip`,
+      filename: `${(mediaInfo.title || 'Media_Collection').replace(/[^a-zA-Z0-9_-]/g, '_')}.zip`,
       options: { selected_ids, isZip: true },
     };
 
@@ -303,121 +297,82 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-dark-bg text-slate-100 flex flex-col justify-between selection:bg-brand-500 selection:text-white relative">
+    <div className="h-screen w-screen overflow-hidden bg-[#0e0e11] text-[#ededed] flex flex-col justify-between selection:bg-[#27272a] selection:text-white font-sans">
       
-      {/* Background Visual Effects & Gradients */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[450px] bg-gradient-to-b from-brand-600/15 via-accent-violet/10 to-transparent blur-3xl opacity-70"></div>
-        <div className="absolute -top-32 right-10 w-96 h-96 bg-accent-emerald/10 blur-3xl rounded-full"></div>
-        <div className="absolute top-1/2 left-0 w-80 h-80 bg-brand-500/10 blur-3xl rounded-full"></div>
-        <div className="absolute inset-0 bg-subtle-grid opacity-20"></div>
-      </div>
+      {/* Navigation Header */}
+      <Header onOpenHistory={() => setIsHistoryOpen(true)} />
 
-      {/* Main Content Area */}
-      <div className="relative z-10 flex-1 flex flex-col">
-        {/* Navigation Header */}
-        <Header 
-          historyCount={history.length}
-          onOpenHistory={() => setIsHistoryOpen(true)}
-        />
-
-        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full space-y-8 flex-1">
+      {/* Main Split-Screen Workbench - Positioned higher up, Locked to Viewport */}
+      <main className="flex-1 flex items-start justify-center max-w-6xl mx-auto px-4 sm:px-8 pt-6 sm:pt-10 lg:pt-12 w-full overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 w-full items-start">
           
-          {/* Hero Section */}
-          <div className="text-center space-y-4 max-w-3xl mx-auto pt-2 pb-2">
-            <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-300 text-xs font-semibold shadow-inner">
-              <Sparkles className="w-3.5 h-3.5 text-brand-400" />
-              <span>Next-Gen High-Fidelity Downloader</span>
+          {/* Left Side: Title + Input Bar + Buttons (Clean vertical stack, no gaps) */}
+          <div className="lg:col-span-6 flex flex-col space-y-5">
+            <div className="text-center lg:text-left">
+              <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#ededed] leading-tight">
+                download any media from the web
+              </h1>
             </div>
 
-            <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
-              Download <span className="bg-clip-text text-transparent bg-gradient-to-r from-brand-400 via-accent-violet to-accent-emerald">4K Video, High-Res Audio</span> & Carousels
-            </h1>
+            {/* Input Bar & Symmetrical Twin Buttons (Paste & Load) */}
+            <UrlInput
+              onFetch={handleFetchMedia}
+              isLoading={isLoadingInfo}
+              currentUrl={currentUrl}
+            />
 
-            <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Ultra-fast extraction for YouTube, Instagram, X/Twitter, and Facebook. Download full 4K 60fps streams, 320kbps MP3s, and batch Instagram carousels in 1-click ZIP archives.
-            </p>
+            {/* Error Alert (if any) */}
+            {error && (
+              <div className="w-full max-w-[440px] mx-auto lg:mx-0">
+                <ErrorAlert
+                  error={error}
+                  onDismiss={() => setError(null)}
+                  onRetry={() => handleFetchMedia(currentUrl)}
+                />
+              </div>
+            )}
           </div>
 
-          {/* Search / URL Input Component */}
-          <UrlInput
-            onFetch={handleFetchMedia}
-            isLoading={isLoadingInfo}
-            currentUrl={currentUrl}
-          />
+          {/* Right Side: Options & Preview */}
+          <div className="lg:col-span-6 flex flex-col justify-start">
+            
+            {/* Active Download Progress Card (Bencho Step-Player) */}
+            {activeTask && (
+              <ProgressCard
+                task={activeTask}
+                onPreview={handleOpenPreview}
+                onDismiss={() => setActiveTask(null)}
+                onRetry={() => handleStartDownload(activeTask.options || {})}
+              />
+            )}
 
-          {/* Error Alert (if any) */}
-          {error && (
-            <ErrorAlert
-              error={error}
-              onDismiss={() => setError(null)}
-              onRetry={() => handleFetchMedia(currentUrl)}
-            />
-          )}
+            {/* Loaded Media Preview & Formats */}
+            {mediaInfo && !activeTask && (
+              <MediaPreview
+                mediaInfo={mediaInfo}
+                onDownload={handleStartDownload}
+                onDownloadItem={handleDownloadItem}
+                onDownloadZip={handleDownloadZip}
+                isDownloading={isDownloading}
+              />
+            )}
 
-          {/* Active Download Progress Card */}
-          {activeTask && (
-            <ProgressCard
-              task={activeTask}
-              onPreview={handleOpenPreview}
-              onDismiss={() => setActiveTask(null)}
-              onRetry={() => handleStartDownload(activeTask.options || {})}
-            />
-          )}
-
-          {/* Media Preview & Formats */}
-          {mediaInfo && (
-            <MediaPreview
-              mediaInfo={mediaInfo}
-              onDownload={handleStartDownload}
-              onDownloadItem={handleDownloadItem}
-              onDownloadZip={handleDownloadZip}
-              isDownloading={isDownloading}
-            />
-          )}
-
-          {/* Default Feature Cards (shown when not viewing media) */}
-          {!mediaInfo && !isLoadingInfo && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-8 animate-in fade-in duration-500">
-              
-              {/* Feature 1 */}
-              <div className="p-5 rounded-2xl bg-dark-card/60 border border-white/5 hover:border-brand-500/30 transition-all hover:bg-dark-card space-y-3 group shadow-lg">
-                <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 text-brand-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Film className="w-5 h-5" />
-                </div>
-                <h3 className="text-sm font-bold text-white">4K Ultra HD & 60 FPS</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Direct adaptive DASH & HLS stream acquisition with automatic FFmpeg post-processing for crisp playback.
+            {/* Empty State: Symmetrically matches the Left Column */}
+            {!mediaInfo && !activeTask && (
+              <div className="w-full min-h-[220px] rounded-[16px] border border-dashed border-[#27272e] p-8 flex flex-col items-center justify-center text-center space-y-2 bg-[#16161a]/25">
+                <p className="text-[15px] font-medium text-[#71717a]">
+                  preview will appear here
+                </p>
+                <p className="text-[12px] text-[#52525b] max-w-xs leading-relaxed">
+                  Paste a link on the left to select audio or video and download.
                 </p>
               </div>
+            )}
 
-              {/* Feature 2 */}
-              <div className="p-5 rounded-2xl bg-dark-card/60 border border-white/5 hover:border-accent-purple/30 transition-all hover:bg-dark-card space-y-3 group shadow-lg">
-                <div className="w-10 h-10 rounded-xl bg-accent-purple/10 border border-accent-purple/20 text-accent-purple flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Music className="w-5 h-5" />
-                </div>
-                <h3 className="text-sm font-bold text-white">Dual Audio Engine</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Universal MP3 at maximum 320kbps fidelity, plus lightning-fast native M4A/AAC without transcoding.
-                </p>
-              </div>
+          </div>
 
-              {/* Feature 3 */}
-              <div className="p-5 rounded-2xl bg-dark-card/60 border border-white/5 hover:border-accent-emerald/30 transition-all hover:bg-dark-card space-y-3 group shadow-lg">
-                <div className="w-10 h-10 rounded-xl bg-accent-emerald/10 border border-accent-emerald/20 text-accent-emerald flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Archive className="w-5 h-5" />
-                </div>
-                <h3 className="text-sm font-bold text-white">Carousel 1-Click ZIPs</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Interactive multi-slide viewer with individual asset downloads and seamless 1-click ZIP archiving.
-                </p>
-              </div>
-
-            </div>
-          )}
-
-        </main>
-      </div>
+        </div>
+      </main>
 
       {/* Global In-Browser Media Preview Modal */}
       <PreviewModal
@@ -436,23 +391,8 @@ export default function App() {
         onPreviewItem={(item) => handleOpenPreview(item)}
       />
 
-      {/* Modern Footer */}
-      <footer className="border-t border-white/5 bg-dark-surface/40 backdrop-blur-md py-6 text-xs text-slate-500 relative z-10">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-            <span className="text-slate-400 font-medium">OmniMedia Downloader • Engine v2.0 (React + FastAPI)</span>
-          </div>
-
-          <div className="flex items-center space-x-4 text-[11px] text-slate-400">
-            <span>Public Media Only</span>
-            <span>•</span>
-            <span>No Account Required</span>
-            <span>•</span>
-            <span>SSRF Sandboxed</span>
-          </div>
-        </div>
-      </footer>
+      {/* Clean minimal spacer */}
+      <footer className="py-2 relative z-10" />
 
     </div>
   );
