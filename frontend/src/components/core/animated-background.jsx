@@ -11,26 +11,31 @@ import { AnimatePresence, motion } from 'framer-motion';
 export function AnimatedBackground({
   children,
   defaultValue,
+  value,
   onValueChange,
   className,
   transition,
   enableHover = false,
 }) {
-  const [activeId, setActiveId] = useState(defaultValue ?? null);
+  const isControlled = value !== undefined;
+  const [internalActiveId, setInternalActiveId] = useState(defaultValue ?? null);
+  const activeId = isControlled ? value : internalActiveId;
   const uniqueId = useId();
 
   const handleSetActiveId = (id) => {
-    setActiveId(id);
+    if (!isControlled) {
+      setInternalActiveId(id);
+    }
     if (onValueChange) {
       onValueChange(id);
     }
   };
 
   useEffect(() => {
-    if (defaultValue !== undefined) {
-      setActiveId((prev) => (prev !== defaultValue ? defaultValue : prev));
+    if (!isControlled && defaultValue !== undefined) {
+      setInternalActiveId((prev) => (prev !== defaultValue ? defaultValue : prev));
     }
-  }, [defaultValue]);
+  }, [isControlled, defaultValue]);
 
   return Children.map(children, (child, index) => {
     if (!isValidElement(child)) {
@@ -41,30 +46,41 @@ export function AnimatedBackground({
 
     const interactionProps = enableHover
       ? {
-          onMouseEnter: () => handleSetActiveId(id),
-          onMouseLeave: () => handleSetActiveId(null),
+          onMouseEnter: (e) => {
+            handleSetActiveId(id);
+            child.props.onMouseEnter?.(e);
+          },
+          onMouseLeave: (e) => {
+            handleSetActiveId(null);
+            child.props.onMouseLeave?.(e);
+          },
         }
       : {
-          onClick: () => handleSetActiveId(id),
+          onClick: (e) => {
+            handleSetActiveId(id);
+            child.props.onClick?.(e);
+          },
         };
+
+    const hasActive = activeId === id;
 
     return cloneElement(
       child,
       {
         key: child.key ?? index,
         className: `${child.props.className ? child.props.className + ' ' : ''}relative`,
-        'data-checked': activeId === id ? 'true' : 'false',
-        'aria-selected': activeId === id,
+        'data-checked': hasActive ? 'true' : 'false',
+        'aria-selected': hasActive,
         ...interactionProps,
       },
       <>
         <AnimatePresence initial={false}>
-          {activeId === id && (
+          {hasActive && (
             <motion.div
               layoutId={`background-${uniqueId}`}
-              className={`absolute inset-0 ${className || ''}`}
+              className={`absolute inset-0 pointer-events-none ${className || ''}`}
               transition={transition}
-              initial={{ opacity: defaultValue ? 1 : 0 }}
+              initial={{ opacity: (isControlled ? value : defaultValue) ? 1 : 0 }}
               animate={{
                 opacity: 1,
               }}
@@ -74,7 +90,14 @@ export function AnimatedBackground({
             />
           )}
         </AnimatePresence>
-        <div className="relative z-10">{child.props.children}</div>
+        {Children.map(child.props.children, (innerChild) => {
+          if (!isValidElement(innerChild)) {
+            return <span className="relative z-10">{innerChild}</span>;
+          }
+          return cloneElement(innerChild, {
+            className: `${innerChild.props.className ? innerChild.props.className + ' ' : ''}relative z-10`,
+          });
+        })}
       </>
     );
   });

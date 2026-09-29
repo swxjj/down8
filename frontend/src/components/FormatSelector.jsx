@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Download, Film, Music, Check } from 'lucide-react';
+import AnimatedBackground from './core/animated-background';
 
 export default function FormatSelector({ formats, onDownload, isDownloading }) {
   const [selectedType, setSelectedType] = useState('video'); // 'video' | 'audio'
@@ -81,85 +82,85 @@ export default function FormatSelector({ formats, onDownload, isDownloading }) {
       
       {/* Symmetrical Twin Primary Type Selector: Video vs Audio (Pure Monochrome) */}
       <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Media format choice">
-        
-        {/* Option 1: Video */}
-        <div
-          role="radio"
-          aria-checked={selectedType === 'video'}
-          tabIndex={0}
-          onClick={() => setSelectedType('video')}
-          onKeyDown={(e) => {
-            if (e.key === ' ' || e.key === 'Enter') {
-              e.preventDefault();
-              setSelectedType('video');
-            }
-          }}
-          className={`px-4 py-3 rounded-[12px] border cursor-pointer transition-all duration-150 flex items-center justify-between ${
-            selectedType === 'video'
-              ? 'border-white/80 bg-[#202026] text-[#ededed] ring-1 ring-white/20'
-              : 'bg-[#16161a] border-[#27272e] text-[#ededed] hover:border-[#3f3f46]'
-          }`}
+        <AnimatedBackground
+          value={selectedType}
+          onValueChange={(val) => val && setSelectedType(val)}
+          className="rounded-[12px] bg-[#22222a]"
+          transition={{ type: 'spring', bounce: 0.15, duration: 0.35 }}
+          enableHover={false}
         >
-          <div className="flex items-center space-x-2.5">
-            <div className="w-7 h-7 rounded-[6px] bg-[#0e0e11] border border-[#27272e] flex items-center justify-center">
-              <Film className="w-3.5 h-3.5 text-[#ededed]" />
-            </div>
-            <div>
-              <h4 className="text-[14px] font-medium text-[#ededed]">Video</h4>
-              <p className="text-[11px] text-[#71717a]">MP4 Container</p>
-            </div>
-          </div>
-
-          <div className="w-4 h-4 rounded-full flex items-center justify-center">
-            {selectedType === 'video' ? (
-              <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center text-black">
-                <Check className="w-2.5 h-2.5 stroke-[3]" />
+          {/* Option 1: Video */}
+          <div
+            data-id="video"
+            role="radio"
+            aria-checked={selectedType === 'video'}
+            tabIndex={0}
+            onClick={() => setSelectedType('video')}
+            onKeyDown={(e) => {
+              if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                setSelectedType('video');
+              }
+            }}
+            className="px-4 py-3 rounded-[12px] border border-[#27272e] cursor-pointer transition-colors duration-150 flex items-center justify-between bg-[#16161a] text-[#ededed] hover:border-[#3f3f46] select-none"
+          >
+            <div className="flex items-center space-x-2.5">
+              <div className="w-7 h-7 rounded-[6px] bg-[#0e0e11] border border-[#27272e] flex items-center justify-center">
+                <Film className="w-3.5 h-3.5 text-[#ededed]" />
               </div>
-            ) : (
-              <div className="w-4 h-4 rounded-full border border-[#27272e]" />
-            )}
-          </div>
-        </div>
-
-        {/* Option 2: Audio */}
-        <div
-          role="radio"
-          aria-checked={selectedType === 'audio'}
-          tabIndex={0}
-          onClick={() => setSelectedType('audio')}
-          onKeyDown={(e) => {
-            if (e.key === ' ' || e.key === 'Enter') {
-              e.preventDefault();
-              setSelectedType('audio');
-            }
-          }}
-          className={`px-4 py-3 rounded-[12px] border cursor-pointer transition-all duration-150 flex items-center justify-between ${
-            selectedType === 'audio'
-              ? 'border-white/80 bg-[#202026] text-[#ededed] ring-1 ring-white/20'
-              : 'bg-[#16161a] border-[#27272e] text-[#ededed] hover:border-[#3f3f46]'
-          }`}
-        >
-          <div className="flex items-center space-x-2.5">
-            <div className="w-7 h-7 rounded-[6px] bg-[#0e0e11] border border-[#27272e] flex items-center justify-center">
-              <Music className="w-3.5 h-3.5 text-[#ededed]" />
-            </div>
-            <div>
-              <h4 className="text-[14px] font-medium text-[#ededed]">Audio</h4>
-              <p className="text-[11px] text-[#71717a]">Audio Track</p>
-            </div>
-          </div>
-
-          <div className="w-4 h-4 rounded-full flex items-center justify-center">
-            {selectedType === 'audio' ? (
-              <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center text-black">
-                <Check className="w-2.5 h-2.5 stroke-[3]" />
+              <div>
+                <h4 className="text-[14px] font-medium text-[#ededed]">Video</h4>
+                <p className="text-[11px] text-[#71717a]">MP4 Container</p>
               </div>
-            ) : (
-              <div className="w-4 h-4 rounded-full border border-[#27272e]" />
-            )}
-          </div>
-        </div>
+            </div>
 
+            <div className="w-4 h-4 rounded-full flex items-center justify-center">
+              {selectedType === 'video' ? (
+                <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center text-black">
+                  <Check className="w-2.5 h-2.5 stroke-[3]" />
+                </div>
+              ) : (
+                <div className="w-4 h-4 rounded-full border border-[#27272e]" />
+              )}
+            </div>
+          </div>
+
+          {/* Option 2: Audio */}
+          <div
+            data-id="audio"
+            role="radio"
+            aria-checked={selectedType === 'audio'}
+            tabIndex={0}
+            onClick={() => setSelectedType('audio')}
+            onKeyDown={(e) => {
+              if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                setSelectedType('audio');
+              }
+            }}
+            className="px-4 py-3 rounded-[12px] border border-[#27272e] cursor-pointer transition-colors duration-150 flex items-center justify-between bg-[#16161a] text-[#ededed] hover:border-[#3f3f46] select-none"
+          >
+            <div className="flex items-center space-x-2.5">
+              <div className="w-7 h-7 rounded-[6px] bg-[#0e0e11] border border-[#27272e] flex items-center justify-center">
+                <Music className="w-3.5 h-3.5 text-[#ededed]" />
+              </div>
+              <div>
+                <h4 className="text-[14px] font-medium text-[#ededed]">Audio</h4>
+                <p className="text-[11px] text-[#71717a]">Audio Track</p>
+              </div>
+            </div>
+
+            <div className="w-4 h-4 rounded-full flex items-center justify-center">
+              {selectedType === 'audio' ? (
+                <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center text-black">
+                  <Check className="w-2.5 h-2.5 stroke-[3]" />
+                </div>
+              ) : (
+                <div className="w-4 h-4 rounded-full border border-[#27272e]" />
+              )}
+            </div>
+          </div>
+        </AnimatedBackground>
       </div>
 
       {/* Selectable Qualities Sub-Section */}
@@ -171,48 +172,66 @@ export default function FormatSelector({ formats, onDownload, isDownloading }) {
         {/* Video Qualities (e.g. 1080p, 720p, 480p, etc.) */}
         {selectedType === 'video' && (
           <div className="grid grid-cols-4 gap-2">
-            {videoList.slice(0, 4).map((item) => {
-              const isSelected = selectedVideoId === item.format_id;
-              return (
-                <button
-                  key={item.format_id}
-                  type="button"
-                  onClick={() => setSelectedVideoId(item.format_id)}
-                  className={`h-9 px-2 rounded-[8px] text-[13px] font-medium border transition-all duration-150 flex items-center justify-center truncate select-none ${
-                    isSelected
-                      ? 'border-white/80 bg-white text-black font-semibold shadow-sm'
-                      : 'bg-[#121216] border-[#27272e] text-[#a1a1aa] hover:text-[#ededed] hover:border-[#3f3f46]'
-                  }`}
-                  title={item.resolution}
-                >
-                  {item.label}
-                </button>
-              );
-            })}
+            <AnimatedBackground
+              value={selectedVideoId}
+              onValueChange={(val) => val && setSelectedVideoId(val)}
+              className="rounded-[8px] bg-white"
+              transition={{ type: 'spring', bounce: 0.15, duration: 0.35 }}
+              enableHover={false}
+            >
+              {videoList.slice(0, 4).map((item) => {
+                const isSelected = selectedVideoId === item.format_id;
+                return (
+                  <button
+                    key={item.format_id}
+                    data-id={item.format_id}
+                    type="button"
+                    onClick={() => setSelectedVideoId(item.format_id)}
+                    className={`h-9 px-2 rounded-[8px] text-[13px] font-medium border border-[#27272e] transition-colors duration-150 flex items-center justify-center truncate select-none bg-[#121216] ${
+                      isSelected
+                        ? 'text-black font-semibold'
+                        : 'text-[#a1a1aa] hover:text-[#ededed] hover:border-[#3f3f46]'
+                    }`}
+                    title={item.resolution}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
+            </AnimatedBackground>
           </div>
         )}
 
         {/* Audio Qualities (e.g. MP3 320kbps, M4A Original) */}
         {selectedType === 'audio' && (
           <div className="grid grid-cols-2 gap-2">
-            {audioList.map((item) => {
-              const isSelected = selectedAudioId === item.format_id;
-              return (
-                <button
-                  key={item.format_id}
-                  type="button"
-                  onClick={() => setSelectedAudioId(item.format_id)}
-                  className={`h-9 px-3 rounded-[8px] text-[13px] font-medium border transition-all duration-150 flex items-center justify-center truncate select-none ${
-                    isSelected
-                      ? 'border-white/80 bg-white text-black font-semibold shadow-sm'
-                      : 'bg-[#121216] border-[#27272e] text-[#a1a1aa] hover:text-[#ededed] hover:border-[#3f3f46]'
-                  }`}
-                  title={item.note}
-                >
-                  {item.label}
-                </button>
-              );
-            })}
+            <AnimatedBackground
+              value={selectedAudioId}
+              onValueChange={(val) => val && setSelectedAudioId(val)}
+              className="rounded-[8px] bg-white"
+              transition={{ type: 'spring', bounce: 0.15, duration: 0.35 }}
+              enableHover={false}
+            >
+              {audioList.map((item) => {
+                const isSelected = selectedAudioId === item.format_id;
+                return (
+                  <button
+                    key={item.format_id}
+                    data-id={item.format_id}
+                    type="button"
+                    onClick={() => setSelectedAudioId(item.format_id)}
+                    className={`h-9 px-3 rounded-[8px] text-[13px] font-medium border border-[#27272e] transition-colors duration-150 flex items-center justify-center truncate select-none bg-[#121216] ${
+                      isSelected
+                        ? 'text-black font-semibold'
+                        : 'text-[#a1a1aa] hover:text-[#ededed] hover:border-[#3f3f46]'
+                    }`}
+                    title={item.note}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
+            </AnimatedBackground>
           </div>
         )}
       </div>
