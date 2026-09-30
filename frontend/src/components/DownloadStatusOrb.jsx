@@ -10,13 +10,12 @@ import { triggerBrowserDownload, getDownloadUrl } from '../services/api';
  * 
  * Geometry: Full pill (`rounded-full`) with tight center alignment (`justify-center gap-3.5`).
  * The 3D particle orb and live status text sit cozily side-by-side in the center.
- * No vertical dividers, no inner canvas box borders, completely transparent WebGL canvas.
- * 
- * Lifecycle:
- * - Idle: Full pill ChromeBorderButton with dynamic format label and chromatic outline.
- * - Active: Centered dark pill with 32x32 micro-orb + clean sentence-case telemetry.
- * - Completed: Success pill with settled micro-orb, "Ready to save", and "Save" CTA.
- * - Failed: Pill with error message and retry action.
+ * Clean, casual lowercase phrases formatted in Montserrat font:
+ * - "parsing..."
+ * - "downloading..."
+ * - "finishing..."
+ * - "almost there..."
+ * - "ready"
  */
 export default function DownloadStatusOrb({
   label,
@@ -40,20 +39,21 @@ export default function DownloadStatusOrb({
   const isActive = isDownloadingActive && !isCompleted && !isFailed;
 
   const percent = Math.min(100, Math.max(0, activeTask?.percent ?? activeTask?.progress ?? 0));
-  const speed = activeTask?.speed || '';
 
-  // Clean, elegant sentence-case telemetry
-  let statusText = 'Parsing stream...';
+  // Map SSE status states directly to requested clean, casual lowercase phrases
+  let statusPhrase = 'parsing...';
   if (isCompleted) {
-    statusText = 'Ready to save';
-  } else if (isMuxing || percent >= 92) {
-    statusText = 'Almost there...';
+    statusPhrase = 'ready';
+  } else if (isMuxing || percent >= 95) {
+    statusPhrase = 'almost there...';
+  } else if (percent >= 85) {
+    statusPhrase = 'finishing...';
   } else if (status === 'downloading') {
-    statusText = speed
-      ? `Downloading • ${percent.toFixed(0)}% (${speed})`
-      : `Downloading • ${percent.toFixed(0)}%`;
+    statusPhrase = 'downloading...';
+  } else if (isConnecting || status === 'queued' || status === 'pending') {
+    statusPhrase = 'parsing...';
   } else {
-    statusText = 'Parsing stream...';
+    statusPhrase = 'parsing...';
   }
 
   // Dynamic micro-orb rotation speed mapped to activity
@@ -117,16 +117,16 @@ export default function DownloadStatusOrb({
             className="w-full max-w-md mx-auto h-12 px-6 rounded-full bg-rose-500/10 border border-rose-500/25 flex items-center justify-center gap-3 transition-all duration-300 select-none"
           >
             <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
-            <span className="text-xs text-rose-200 truncate">
-              {activeTask?.error || 'Download failed'}
+            <span className="font-['Montserrat',sans-serif] lowercase text-xs tracking-wide text-rose-200 truncate select-none">
+              {activeTask?.error?.toLowerCase() || 'failed'}
             </span>
             <button
               type="button"
               onClick={onClick}
-              className="shrink-0 px-3 py-1 rounded-full bg-zinc-800 text-xs font-medium text-white hover:bg-zinc-700 transition-colors flex items-center gap-1 cursor-pointer"
+              className="shrink-0 px-3 py-1 rounded-full bg-zinc-800 text-xs font-['Montserrat',sans-serif] lowercase font-medium text-white hover:bg-zinc-700 transition-colors flex items-center gap-1 cursor-pointer"
             >
               <RefreshCw className="w-3 h-3" />
-              <span>Retry</span>
+              <span>retry</span>
             </button>
           </motion.div>
         ) : isCompleted ? (
@@ -145,8 +145,8 @@ export default function DownloadStatusOrb({
             </div>
 
             {/* Status text */}
-            <span className="text-sm font-normal text-emerald-300 tracking-normal flex items-center gap-1.5">
-              Ready to save
+            <span className="font-['Montserrat',sans-serif] lowercase text-xs tracking-wide text-emerald-300 select-none">
+              {statusPhrase}
             </span>
 
             {/* Quick action buttons */}
@@ -154,25 +154,25 @@ export default function DownloadStatusOrb({
               <button
                 type="button"
                 onClick={handleSaveFile}
-                className="px-3.5 py-1.5 rounded-full bg-white hover:bg-zinc-100 text-zinc-950 font-medium text-xs transition-transform active:scale-95 flex items-center gap-1 cursor-pointer shadow-sm"
+                className="px-3.5 py-1.5 rounded-full bg-white hover:bg-zinc-100 text-zinc-950 font-['Montserrat',sans-serif] lowercase text-xs font-medium transition-transform active:scale-95 flex items-center gap-1 cursor-pointer shadow-sm"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>Save</span>
+                <span>save</span>
               </button>
               {onPreview && (
                 <button
                   type="button"
                   onClick={() => onPreview(activeTask)}
-                  className="px-3 py-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium transition-colors flex items-center gap-1 cursor-pointer"
+                  className="px-3 py-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-['Montserrat',sans-serif] lowercase text-xs font-medium transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   <Eye className="w-3.5 h-3.5" />
-                  <span>Preview</span>
+                  <span>preview</span>
                 </button>
               )}
             </div>
           </motion.div>
         ) : (
-          /* ACTIVE STATE: Centered rounded-full pill with cozy micro-orb & sentence-case telemetry */
+          /* ACTIVE STATE: Centered rounded-full pill with cozy micro-orb & clean casual lowercase status text */
           <motion.div
             key="active-state"
             initial={{ opacity: 0, scale: 0.98 }}
@@ -186,9 +186,9 @@ export default function DownloadStatusOrb({
               <ParticleMorphOrb size={32} speed={orbSpeed} />
             </div>
 
-            {/* Live status text: text-sm font-normal text-zinc-300 tracking-normal flex items-center gap-1.5 */}
-            <span className="text-sm font-normal text-zinc-300 tracking-normal flex items-center gap-1.5 truncate">
-              {statusText}
+            {/* Live status text: font-['Montserrat',sans-serif] lowercase text-xs tracking-wide text-zinc-300 select-none */}
+            <span className="font-['Montserrat',sans-serif] lowercase text-xs tracking-wide text-zinc-300 select-none">
+              {statusPhrase}
             </span>
           </motion.div>
         )}
