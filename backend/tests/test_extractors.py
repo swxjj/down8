@@ -175,10 +175,8 @@ def test_youtube_anti_bot_presets():
     assert "extractor_args" in opts
     yt_args = opts["extractor_args"]["youtube"]
     assert "player_client" in yt_args
-    # Confirms multi-client fallback for SABR bypass
-    assert "ios" in yt_args["player_client"]
-    assert "android" in yt_args["player_client"]
-    assert "web" in yt_args["player_client"]
+    # Confirms client configuration preserves high-definition streams (1080p, 4K)
+    assert "default" in yt_args["player_client"]
 
 
 def test_instagram_mobile_headers():

@@ -79,7 +79,8 @@ export default function FormatSelector({ formats, onDownload, isDownloading, act
   // Sync selected format IDs when formats change
   useEffect(() => {
     if (videoList.length > 0) {
-      setSelectedVideoId(videoList[0].format_id);
+      const preferred = videoList.find((v) => v.format_id === '1080p' || v.height === 1080) || videoList[0];
+      setSelectedVideoId(preferred.format_id);
     }
     if (audioList.length > 0) {
       setSelectedAudioId(audioList[0].format_id);
@@ -201,10 +202,10 @@ export default function FormatSelector({ formats, onDownload, isDownloading, act
           {selectedType === 'video' ? 'Select Resolution' : 'Select Audio Format'}
         </span>
 
-        {/* Video Qualities (e.g. 1080p, 720p, 480p, etc.) */}
+        {/* Video Qualities (e.g. 4K, 1440p, 1080p, 720p, 480p, 360p) */}
         {selectedType === 'video' && (
-          <div className="grid grid-cols-4 gap-2">
-            {videoList.slice(0, 4).map((item) => {
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+            {videoList.map((item) => {
               const isSelected = selectedVideoId === item.format_id;
               const formattedSize = formatBytes(item.filesize);
               return (

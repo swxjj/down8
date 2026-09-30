@@ -74,15 +74,13 @@ class YouTubeExtractor(BaseExtractor):
 
     def get_ytdl_opts(self, url: str, is_download: bool = False) -> Dict[str, Any]:
         """
-        YouTube-specific options incorporating multi-client SABR/anti-bot bypass.
+        YouTube-specific options allowing all available resolution tiers (4K, 1440p, 1080p, 720p, 480p, 360p).
         """
         opts = self.get_base_ytdl_opts()
         opts.update({
-            # Multi-client fallback: ios, android, then web to evade Web SABR challenges
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["ios", "android", "web"],
-                    "player_skip": ["webpage", "configs"],
+                    "player_client": ["default"],
                 }
             },
             "http_headers": {
