@@ -141,11 +141,13 @@ export default function ParticleMorphOrb({
     camera.position.set(0, 0, 4.3);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setClearColor(0x000000, 0);
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
     renderer.domElement.style.width = '100%';
     renderer.domElement.style.height = '100%';
     renderer.domElement.style.display = 'block';
+    renderer.domElement.style.background = 'transparent';
     renderer.domElement.style.pointerEvents = 'none';
     container.appendChild(renderer.domElement);
 

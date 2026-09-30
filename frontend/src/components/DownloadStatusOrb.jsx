@@ -6,16 +6,17 @@ import ChromeBorderButton from './ui/chrome-border-button';
 import { triggerBrowserDownload, getDownloadUrl } from '../services/api';
 
 /**
- * DownloadStatusOrb - Micro-Visualizer Download Button
+ * DownloadStatusOrb - RewampUI Style Particle-Morph Status Pill
  * 
- * Embeds a 36x36 3D WebGL particle-morph orb strictly INSIDE the h-11 button footprint.
+ * Geometry: Full pill (`rounded-full`) with tight center alignment (`justify-center gap-3.5`).
+ * The 3D particle orb and live status text sit cozily side-by-side in the center.
+ * No vertical dividers, no inner canvas box borders, completely transparent WebGL canvas.
  * 
- * States:
- * 1. Idle: ChromeBorderButton with dynamic format label and chromatic outline.
- * 2. Active: Sunken dark capsule (h-11) containing the floating micro-orb on the left,
- *    subtle gradient progress track fill behind, and 4-phase uppercase monospace status copy.
- * 3. Completed: Success capsule with settled micro-orb, "Ready • Saved" badge, and "Save File" CTA.
- * 4. Failed: Error capsule with failure description and retry button.
+ * Lifecycle:
+ * - Idle: Full pill ChromeBorderButton with dynamic format label and chromatic outline.
+ * - Active: Centered dark pill with 32x32 micro-orb + clean sentence-case telemetry.
+ * - Completed: Success pill with settled micro-orb, "Ready to save", and "Save" CTA.
+ * - Failed: Pill with error message and retry action.
  */
 export default function DownloadStatusOrb({
   label,
@@ -41,18 +42,18 @@ export default function DownloadStatusOrb({
   const percent = Math.min(100, Math.max(0, activeTask?.percent ?? activeTask?.progress ?? 0));
   const speed = activeTask?.speed || '';
 
-  // 4 Status Phases according to system telemetry
-  let statusText = 'Parsing media stream...';
+  // Clean, elegant sentence-case telemetry
+  let statusText = 'Parsing stream...';
   if (isCompleted) {
-    statusText = 'Ready • Saving...';
+    statusText = 'Ready to save';
   } else if (isMuxing || percent >= 92) {
-    statusText = 'Almost there • Muxing...';
+    statusText = 'Almost there...';
   } else if (status === 'downloading') {
     statusText = speed
       ? `Downloading • ${percent.toFixed(0)}% (${speed})`
       : `Downloading • ${percent.toFixed(0)}%`;
   } else {
-    statusText = 'Parsing media stream...';
+    statusText = 'Parsing stream...';
   }
 
   // Dynamic micro-orb rotation speed mapped to activity
@@ -83,83 +84,77 @@ export default function DownloadStatusOrb({
   };
 
   return (
-    <div className={`w-full h-11 relative overflow-hidden transition-all duration-300 font-sans ${className}`}>
+    <div className={`w-full max-w-md mx-auto h-12 relative transition-all duration-300 font-sans ${className}`}>
       <AnimatePresence mode="wait">
         {!isActive && !isCompleted && !isFailed ? (
-          /* IDLE STATE: ChromeBorderButton matching the cosmic background */
+          /* IDLE STATE: Full pill ChromeBorderButton */
           <motion.div
             key="idle-button"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="w-full h-11"
+            className="w-full h-12"
           >
             <ChromeBorderButton
               onClick={onClick}
               disabled={disabled}
               isDark={isDark}
               icon={Download}
-              className="w-full h-11"
+              className="w-full h-12"
             >
               {label || `Download Video (${selectedFormat || '1080p'})`}
             </ChromeBorderButton>
           </motion.div>
         ) : isFailed ? (
-          /* FAILED STATE: Sunken dark error capsule */
+          /* FAILED STATE: Centered error pill */
           <motion.div
             key="failed-state"
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            className="relative w-full h-11 bg-rose-500/10 border border-rose-500/25 rounded-xl px-3 flex items-center justify-between overflow-hidden shadow-inner select-none"
+            className="w-full max-w-md mx-auto h-12 px-6 rounded-full bg-rose-500/10 border border-rose-500/25 flex items-center justify-center gap-3 transition-all duration-300 select-none"
           >
-            <div className="flex items-center space-x-2 text-rose-300 min-w-0 pr-2">
-              <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
-              <span className="text-xs font-mono truncate">
-                {activeTask?.error || 'Download failed'}
-              </span>
-            </div>
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+            <span className="text-xs text-rose-200 truncate">
+              {activeTask?.error || 'Download failed'}
+            </span>
             <button
               type="button"
               onClick={onClick}
-              className="shrink-0 px-2.5 py-1 rounded-lg bg-zinc-800 text-xs font-medium text-white hover:bg-zinc-700 transition-colors flex items-center space-x-1 cursor-pointer"
+              className="shrink-0 px-3 py-1 rounded-full bg-zinc-800 text-xs font-medium text-white hover:bg-zinc-700 transition-colors flex items-center gap-1 cursor-pointer"
             >
               <RefreshCw className="w-3 h-3" />
               <span>Retry</span>
             </button>
           </motion.div>
         ) : isCompleted ? (
-          /* COMPLETED STATE: Morphs to success capsule with settled micro-orb & Save File CTA */
+          /* COMPLETED STATE: Centered success pill with settled micro-orb & Save File CTA */
           <motion.div
             key="completed-state"
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            className="relative w-full h-11 bg-zinc-950/80 border border-emerald-500/30 rounded-xl px-3 flex items-center justify-between overflow-hidden shadow-inner select-none"
+            className="w-full max-w-md mx-auto h-12 px-6 rounded-full bg-[#111114]/90 dark:bg-zinc-900/90 border border-emerald-500/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] flex items-center justify-center gap-3.5 transition-all duration-300 select-none"
           >
-            <div className="absolute inset-0 bg-emerald-500/5 pointer-events-none" />
-
-            {/* Left: Settled micro-orb */}
-            <div className="relative z-10 w-10 h-10 shrink-0 flex items-center justify-center overflow-hidden pointer-events-none">
-              <ParticleMorphOrb size={36} speed={0.45} />
+            {/* Clean transparent orb wrapper */}
+            <div className="w-8 h-8 shrink-0 flex items-center justify-center bg-transparent overflow-hidden pointer-events-none">
+              <ParticleMorphOrb size={32} speed={0.45} />
             </div>
 
-            {/* Center: Monospace status */}
-            <div className="relative z-10 min-w-0 flex-1 px-2">
-              <span className="font-mono text-xs tracking-wider uppercase text-emerald-400 font-medium truncate block">
-                Ready • Saved
-              </span>
-            </div>
+            {/* Status text */}
+            <span className="text-sm font-normal text-emerald-300 tracking-normal flex items-center gap-1.5">
+              Ready to save
+            </span>
 
-            {/* Right: Actions */}
-            <div className="relative z-10 flex items-center space-x-1.5 shrink-0">
+            {/* Quick action buttons */}
+            <div className="flex items-center gap-1.5 ml-1">
               <button
                 type="button"
                 onClick={handleSaveFile}
-                className="px-3 py-1.5 rounded-lg bg-white hover:bg-zinc-100 text-zinc-950 font-semibold text-xs transition-transform active:scale-95 flex items-center space-x-1 cursor-pointer shadow-sm"
+                className="px-3.5 py-1.5 rounded-full bg-white hover:bg-zinc-100 text-zinc-950 font-medium text-xs transition-transform active:scale-95 flex items-center gap-1 cursor-pointer shadow-sm"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Save</span>
@@ -168,7 +163,7 @@ export default function DownloadStatusOrb({
                 <button
                   type="button"
                   onClick={() => onPreview(activeTask)}
-                  className="px-2.5 py-1.5 rounded-lg bg-zinc-800/90 hover:bg-zinc-700/90 text-zinc-200 hover:text-white text-xs border border-white/10 active:scale-95 transition-all flex items-center space-x-1 cursor-pointer"
+                  className="px-3 py-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   <Eye className="w-3.5 h-3.5" />
                   <span>Preview</span>
@@ -177,39 +172,24 @@ export default function DownloadStatusOrb({
             </div>
           </motion.div>
         ) : (
-          /* ACTIVE STATE: Sunken dark capsule with micro-orb & 4-phase monospace telemetry */
+          /* ACTIVE STATE: Centered rounded-full pill with cozy micro-orb & sentence-case telemetry */
           <motion.div
             key="active-state"
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            className="relative w-full h-11 bg-zinc-950/80 border border-white/10 rounded-xl px-3 flex items-center justify-between overflow-hidden shadow-inner select-none"
+            className="w-full max-w-md mx-auto h-12 px-6 rounded-full bg-[#111114]/90 dark:bg-zinc-900/90 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] flex items-center justify-center gap-3.5 transition-all duration-300 select-none overflow-hidden"
           >
-            {/* Subtle background progress track fill */}
-            <motion.div
-              className="absolute inset-y-0 left-0 bg-gradient-to-r from-sky-500/15 via-teal-500/20 to-rose-500/15 border-r border-white/15 pointer-events-none"
-              initial={{ width: 0 }}
-              animate={{ width: `${percent}%` }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
-            />
-
-            {/* Left: Mini floating micro-orb */}
-            <div className="relative z-10 w-10 h-10 shrink-0 flex items-center justify-center overflow-hidden pointer-events-none">
-              <ParticleMorphOrb size={36} speed={orbSpeed} />
+            {/* Clean transparent orb wrapper: w-8 h-8 shrink-0 flex items-center justify-center bg-transparent */}
+            <div className="w-8 h-8 shrink-0 flex items-center justify-center bg-transparent overflow-hidden pointer-events-none">
+              <ParticleMorphOrb size={32} speed={orbSpeed} />
             </div>
 
-            {/* Center/Right: Monospace uppercase status text */}
-            <div className="relative z-10 min-w-0 flex-1 flex items-center justify-end pl-2">
-              <motion.span
-                key={statusText}
-                initial={{ opacity: 0, y: 2 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="font-mono text-xs tracking-wider uppercase text-zinc-300 tabular-nums truncate text-right"
-              >
-                {statusText}
-              </motion.span>
-            </div>
+            {/* Live status text: text-sm font-normal text-zinc-300 tracking-normal flex items-center gap-1.5 */}
+            <span className="text-sm font-normal text-zinc-300 tracking-normal flex items-center gap-1.5 truncate">
+              {statusText}
+            </span>
           </motion.div>
         )}
       </AnimatePresence>
