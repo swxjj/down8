@@ -442,6 +442,7 @@ export default function App() {
                 isDownloading={isDownloading}
                 activeTask={activeTask}
                 onPreview={handleOpenPreview}
+                isDark={isDark}
               />
             )}
 

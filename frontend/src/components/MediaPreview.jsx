@@ -32,6 +32,7 @@ export default function MediaPreview({
   isDownloading,
   activeTask,
   onPreview,
+  isDark = true,
 }) {
   const [imageError, setImageError] = useState(false);
 
@@ -152,6 +153,7 @@ export default function MediaPreview({
           isDownloading={isDownloading}
           activeTask={activeTask}
           embedded
+          isDark={isDark}
         />
 
         {activeTask?.status === 'completed' && onPreview && (

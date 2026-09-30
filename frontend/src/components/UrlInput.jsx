@@ -131,6 +131,7 @@ export default function UrlInput({
                   <ChromeBorderButton
                     type="submit"
                     disabled={!url.trim()}
+                    isDark={isDark}
                     className="w-full h-11"
                   >
                     Load

@@ -14,7 +14,7 @@ function formatBytes(bytes) {
   return `${(num / Math.pow(1024, i)).toFixed(1)} ${units[i]}`;
 }
 
-export default function FormatSelector({ formats, onDownload, isDownloading, activeTask }) {
+export default function FormatSelector({ formats, onDownload, isDownloading, activeTask, isDark = true }) {
   const [selectedType, setSelectedType] = useState(null); // null | 'video' | 'audio'
 
   const defaultVideoFormats = [
@@ -117,6 +117,7 @@ export default function FormatSelector({ formats, onDownload, isDownloading, act
           active={selectedType === 'video'}
           onClick={() => setSelectedType('video')}
           icon={Film}
+          isDark={isDark}
           className="w-full h-11"
         >
           Video
@@ -126,6 +127,7 @@ export default function FormatSelector({ formats, onDownload, isDownloading, act
           active={selectedType === 'audio'}
           onClick={() => setSelectedType('audio')}
           icon={Music}
+          isDark={isDark}
           className="w-full h-11"
         >
           Audio
