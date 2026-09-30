@@ -28,13 +28,6 @@ export default function ProgressCard({
   useEffect(() => {
     if (task && task.status === 'completed' && !hasTriggeredCompleteRef.current) {
       hasTriggeredCompleteRef.current = true;
-      
-      // Automatic browser file download save trigger
-      if (task.task_id && !task.hasSaved) {
-        const fileUrl = task.file_url || getDownloadUrl(task.task_id);
-        const fileName = task.filename || 'downloaded_media.mp4';
-        triggerBrowserDownload(fileUrl, fileName);
-      }
     }
   }, [task]);
 

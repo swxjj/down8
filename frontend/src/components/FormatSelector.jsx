@@ -154,7 +154,7 @@ export default function FormatSelector({ formats, onDownload, isDownloading, act
           >
             {/* Selectable Qualities Sub-Section */}
             <div className="space-y-1.5">
-              <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+              <span className="text-xs font-mono tracking-wider text-zinc-600 dark:text-zinc-400 uppercase select-none mb-2 block">
                 {selectedType === 'video' ? 'Select Resolution' : 'Select Audio Format'}
               </span>
 
@@ -169,16 +169,18 @@ export default function FormatSelector({ formats, onDownload, isDownloading, act
                         key={item.format_id}
                         type="button"
                         onClick={() => setSelectedVideoId(item.format_id)}
-                        className={`transition-all duration-150 flex flex-col items-center justify-center select-none text-xs rounded-xl py-2 px-3 ${
+                        className={`transition-all duration-150 flex flex-col justify-center select-none text-left rounded-xl p-2.5 cursor-pointer ${
                           isSelected
-                            ? 'bg-zinc-800/90 border border-white/20 text-white shadow-[0_0_15px_rgba(255,255,255,0.06)] font-medium'
-                            : 'bg-zinc-900/70 border border-white/5 text-zinc-400 hover:border-white/15 hover:text-zinc-200 backdrop-blur-sm'
+                            ? 'bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-950 border border-black/20 dark:border-white/20 shadow-sm'
+                            : 'bg-white/70 dark:bg-zinc-900/60 hover:bg-white/90 dark:hover:bg-zinc-800/80 border border-black/10 dark:border-white/10 shadow-sm'
                         }`}
                         title={item.resolution}
                       >
-                        <span className="font-semibold">{item.label}</span>
+                        <span className={`text-xs font-semibold block ${isSelected ? 'text-white dark:text-zinc-950' : 'text-zinc-900 dark:text-zinc-100'}`}>
+                          {item.label}
+                        </span>
                         {formattedSize && (
-                          <span className={`text-[10px] font-mono mt-0.5 ${isSelected ? 'text-zinc-300' : 'text-zinc-500'}`}>
+                          <span className={`text-[10px] font-mono block mt-0.5 ${isSelected ? 'text-zinc-300 dark:text-zinc-600' : 'text-zinc-500 dark:text-zinc-400'}`}>
                             {formattedSize}
                           </span>
                         )}
@@ -199,17 +201,19 @@ export default function FormatSelector({ formats, onDownload, isDownloading, act
                         key={item.format_id}
                         type="button"
                         onClick={() => setSelectedAudioId(item.format_id)}
-                        className={`transition-all duration-150 flex items-center justify-center space-x-2 select-none text-xs rounded-xl py-2 px-3 ${
+                        className={`transition-all duration-150 flex flex-col justify-center select-none text-left rounded-xl p-2.5 cursor-pointer ${
                           isSelected
-                            ? 'bg-zinc-800/90 border border-white/20 text-white shadow-[0_0_15px_rgba(255,255,255,0.06)] font-medium'
-                            : 'bg-zinc-900/70 border border-white/5 text-zinc-400 hover:border-white/15 hover:text-zinc-200 backdrop-blur-sm'
+                            ? 'bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-950 border border-black/20 dark:border-white/20 shadow-sm'
+                            : 'bg-white/70 dark:bg-zinc-900/60 hover:bg-white/90 dark:hover:bg-zinc-800/80 border border-black/10 dark:border-white/10 shadow-sm'
                         }`}
                         title={item.note}
                       >
-                        <span className="font-semibold">{item.label}</span>
+                        <span className={`text-xs font-semibold block ${isSelected ? 'text-white dark:text-zinc-950' : 'text-zinc-900 dark:text-zinc-100'}`}>
+                          {item.label}
+                        </span>
                         {formattedSize && (
-                          <span className={`text-[10px] font-mono ${isSelected ? 'text-zinc-300' : 'text-zinc-500'}`}>
-                            • {formattedSize}
+                          <span className={`text-[10px] font-mono block mt-0.5 ${isSelected ? 'text-zinc-300 dark:text-zinc-600' : 'text-zinc-500 dark:text-zinc-400'}`}>
+                            {formattedSize}
                           </span>
                         )}
                       </button>

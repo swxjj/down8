@@ -11,11 +11,11 @@ export default function Header({ onOpenHistory, isDark, toggleTheme }) {
         </span>
 
         <div className="flex items-center gap-3">
-          {/* Text-only History with interactive hover underline (no buttons, no numbers) */}
+          {/* Text-only History with Montserrat font */}
           <button
             type="button"
             onClick={onOpenHistory}
-            className="text-[14px] font-medium text-neutral-600 dark:text-[#a1a1aa] hover:text-neutral-900 dark:hover:text-[#ededed] transition-colors relative py-1 group focus:outline-none bg-transparent border-0 cursor-pointer"
+            className="font-['Montserrat',sans-serif] text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white transition-colors cursor-pointer relative py-1 group focus:outline-none bg-transparent border-0"
           >
             <span>History</span>
             <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-neutral-900 dark:bg-[#ededed] transition-all duration-200 group-hover:w-full" />

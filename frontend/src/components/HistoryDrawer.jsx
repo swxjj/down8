@@ -1,9 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { 
   X, 
   Trash2, 
   Download, 
-  Clock, 
   Film, 
   Music, 
   Archive, 
@@ -12,6 +11,14 @@ import {
 } from 'lucide-react';
 import { YoutubeIcon, InstagramIcon, TwitterIcon, FacebookIcon, TikTokIcon } from './PlatformIcons';
 import { triggerBrowserDownload, getDownloadUrl } from '../services/api';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerClose,
+} from './ui/drawer';
 
 function formatBytes(bytes) {
   if (!bytes) return null;
@@ -37,18 +44,6 @@ export default function HistoryDrawer({
   onRemoveItem,
   onPreviewItem 
 }) {
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
   const getPlatformIcon = (platform) => {
     switch (platform) {
       case 'youtube':
@@ -85,62 +80,49 @@ export default function HistoryDrawer({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden font-sans">
-      {/* Frosted backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm transition-opacity" 
-        onClick={onClose}
-      />
-
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div 
-          role="dialog" 
-          aria-modal="true" 
-          aria-label="Download History"
-          className="w-screen max-w-md bg-white/90 dark:bg-[#0c0c0e]/95 backdrop-blur-xl border-l border-black/10 dark:border-white/[0.08] p-6 shadow-2xl flex flex-col justify-between text-zinc-900 dark:text-zinc-100"
-        >
+    <Drawer open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DrawerContent className="bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border-t border-black/10 dark:border-white/10 max-h-[85vh] font-sans">
+        <div className="mx-auto w-full max-w-2xl px-6 pb-6 pt-2 flex flex-col h-full overflow-hidden">
           
-          {/* Drawer Header */}
-          <div className="pb-4 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
-            <div className="flex items-center space-x-2.5">
-              <div className="p-1.5 rounded-lg bg-black/5 dark:bg-zinc-800/60 border border-black/5 dark:border-white/5 text-zinc-900 dark:text-zinc-100">
-                <Clock className="w-4 h-4" />
-              </div>
-              <div>
-                <h3 className="text-[14px] font-medium text-zinc-900 dark:text-zinc-100">History</h3>
-                <p className="text-[12px] text-zinc-500 dark:text-zinc-400 tabular-nums">
-                  {history.length} {history.length === 1 ? 'item saved locally' : 'items saved locally'}
-                </p>
-              </div>
+          <DrawerHeader className="px-0 py-3 flex flex-row items-center justify-between border-b border-black/5 dark:border-white/5">
+            <div>
+              <DrawerTitle className="font-['Montserrat',sans-serif] text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                History
+              </DrawerTitle>
+              <DrawerDescription className="font-mono text-xs text-zinc-500">
+                {history.length} items saved locally
+              </DrawerDescription>
             </div>
 
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-2">
               {history.length > 0 && (
                 <button
                   type="button"
                   onClick={onClearHistory}
-                  className="p-1.5 rounded-lg text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg text-xs font-mono text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10 transition-colors flex items-center gap-1 cursor-pointer"
                   title="Clear history"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Clear All</span>
                 </button>
               )}
-              <button
-                type="button"
-                onClick={onClose}
-                className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
-                title="Close drawer"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              <DrawerClose asChild>
+                <button
+                  type="button"
+                  className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                  title="Close"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </DrawerClose>
             </div>
-          </div>
+          </DrawerHeader>
 
           {/* Drawer Body */}
-          <div className="flex-1 overflow-y-auto py-4 space-y-2.5">
+          <div className="flex-1 overflow-y-auto py-4 space-y-2.5 pr-1 max-h-[60vh]">
             {history.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-2">
-                <div className="w-10 h-10 rounded-full bg-black/5 dark:bg-zinc-800/60 border border-black/5 dark:border-white/5 flex items-center justify-center text-zinc-400 dark:text-zinc-500">
+              <div className="py-12 flex flex-col items-center justify-center text-center space-y-2">
+                <div className="w-10 h-10 rounded-full bg-black/5 dark:bg-zinc-900 border border-black/5 dark:border-white/5 flex items-center justify-center text-zinc-400 dark:text-zinc-500">
                   <Download className="w-4 h-4" />
                 </div>
                 <div>
@@ -229,20 +211,8 @@ export default function HistoryDrawer({
             )}
           </div>
 
-          {/* Drawer Footer */}
-          <div className="pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
-            <span>Stored in browser memory</span>
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white font-medium transition-colors cursor-pointer"
-            >
-              Close
-            </button>
-          </div>
-
         </div>
-      </div>
-    </div>
+      </DrawerContent>
+    </Drawer>
   );
 }

@@ -1,21 +1,27 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, AlertCircle, RefreshCw, Eye } from 'lucide-react';
 import ParticleMorphOrb from './ui/ParticleMorphOrb';
 import ChromeBorderButton from './ui/chrome-border-button';
 import { triggerBrowserDownload, getDownloadUrl } from '../services/api';
 
+const PHRASES = [
+  'parsing...',
+  'downloading...',
+  'almost there...',
+  'encoding...',
+  'just a sec...',
+  'finishing...',
+  'cooking...',
+];
+
 /**
  * DownloadStatusOrb - RewampUI Style Particle-Morph Status Pill
  * 
- * Geometry: Full pill (`rounded-full`) with tight center alignment (`justify-center gap-3.5`).
- * The 3D particle orb and live status text sit cozily side-by-side in the center.
- * Clean, casual lowercase phrases formatted in Montserrat font:
- * - "parsing..."
- * - "downloading..."
- * - "finishing..."
- * - "almost there..."
- * - "ready"
+ * - Full pill (`rounded-full`) with tight center alignment.
+ * - Active State: 32x32 micro-orb + rapid randomized phrase transitions in Montserrat (1.3s interval).
+ * - Completed State: Smoothly morphs into "Save File" (Primary) and "Preview" (Secondary) buttons.
+ * - ZERO automatic downloads or popups upon completion; file download triggers ONLY on "Save File" click.
  */
 export default function DownloadStatusOrb({
   label,
@@ -28,54 +34,42 @@ export default function DownloadStatusOrb({
   isDark = true,
   className = '',
 }) {
-  const hasTriggeredDownloadRef = useRef(null);
-
   const status = activeTask?.status;
   const isCompleted = status === 'completed';
   const isFailed = status === 'failed' || status === 'error';
   const isMuxing = status === 'muxing';
-  const isConnecting = status === 'connecting' || status === 'queued' || status === 'pending';
   const isDownloadingActive = isDownloading || (status && !isCompleted && !isFailed && status !== 'idle');
   const isActive = isDownloadingActive && !isCompleted && !isFailed;
 
-  const percent = Math.min(100, Math.max(0, activeTask?.percent ?? activeTask?.progress ?? 0));
+  const [currentPhrase, setCurrentPhrase] = useState(PHRASES[0]);
 
-  // Map SSE status states directly to requested clean, casual lowercase phrases
-  let statusPhrase = 'parsing...';
-  if (isCompleted) {
-    statusPhrase = 'ready';
-  } else if (isMuxing || percent >= 95) {
-    statusPhrase = 'almost there...';
-  } else if (percent >= 85) {
-    statusPhrase = 'finishing...';
-  } else if (status === 'downloading') {
-    statusPhrase = 'downloading...';
-  } else if (isConnecting || status === 'queued' || status === 'pending') {
-    statusPhrase = 'parsing...';
-  } else {
-    statusPhrase = 'parsing...';
-  }
+  // Randomized rapid phrase transitions (every ~1.3s) without repeating immediate previous
+  useEffect(() => {
+    if (!isActive) return;
 
-  // Dynamic micro-orb rotation speed mapped to activity
+    setCurrentPhrase(PHRASES[0]);
+
+    const interval = setInterval(() => {
+      setCurrentPhrase((prev) => {
+        const remaining = PHRASES.filter((p) => p !== prev);
+        return remaining[Math.floor(Math.random() * remaining.length)];
+      });
+    }, 1300);
+
+    return () => clearInterval(interval);
+  }, [isActive]);
+
+  // Dynamic micro-orb rotation speed
   let orbSpeed = 1.0;
   if (isMuxing) {
     orbSpeed = 2.2;
   } else if (isActive) {
-    orbSpeed = 1.0 + (percent / 100) * 1.5;
+    orbSpeed = 1.6;
   } else if (isCompleted) {
     orbSpeed = 0.45;
   }
 
-  // Trigger browser file download automatically once upon completion
-  useEffect(() => {
-    if (isCompleted && activeTask?.task_id && hasTriggeredDownloadRef.current !== activeTask.task_id) {
-      hasTriggeredDownloadRef.current = activeTask.task_id;
-      const fileUrl = activeTask.file_url || getDownloadUrl(activeTask.task_id);
-      const fileName = activeTask.filename || 'downloaded_media.mp4';
-      triggerBrowserDownload(fileUrl, fileName);
-    }
-  }, [isCompleted, activeTask]);
-
+  // Explicit user-driven save action (ZERO automatic download)
   const handleSaveFile = () => {
     if (!activeTask?.task_id) return;
     const fileUrl = activeTask.file_url || getDownloadUrl(activeTask.task_id);
@@ -107,7 +101,7 @@ export default function DownloadStatusOrb({
             </ChromeBorderButton>
           </motion.div>
         ) : isFailed ? (
-          /* FAILED STATE: Centered error pill */
+          /* FAILED STATE: Centered error pill with retry */
           <motion.div
             key="failed-state"
             initial={{ opacity: 0, scale: 0.98 }}
@@ -118,7 +112,7 @@ export default function DownloadStatusOrb({
           >
             <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
             <span className="font-['Montserrat',sans-serif] lowercase text-xs tracking-wide text-rose-200 truncate select-none">
-              {activeTask?.error?.toLowerCase() || 'failed'}
+              {activeTask?.error?.toLowerCase() || 'download failed'}
             </span>
             <button
               type="button"
@@ -130,49 +124,39 @@ export default function DownloadStatusOrb({
             </button>
           </motion.div>
         ) : isCompleted ? (
-          /* COMPLETED STATE: Centered success pill with settled micro-orb & Save File CTA */
+          /* COMPLETED STATE: Morphs smoothly into "Save File" (Primary) and "Preview" (Secondary) */
           <motion.div
             key="completed-state"
-            initial={{ opacity: 0, scale: 0.98 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.15 }}
-            className="w-full max-w-md mx-auto h-12 px-6 rounded-full bg-[#111114]/90 dark:bg-zinc-900/90 border border-emerald-500/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] flex items-center justify-center gap-3.5 transition-all duration-300 select-none"
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="w-full max-w-md mx-auto h-12 flex items-center justify-center gap-3 select-none"
           >
-            {/* Clean transparent orb wrapper */}
-            <div className="w-8 h-8 shrink-0 flex items-center justify-center bg-transparent overflow-hidden pointer-events-none">
-              <ParticleMorphOrb size={32} speed={0.45} />
-            </div>
+            {/* Primary Action: Save File */}
+            <button
+              type="button"
+              onClick={handleSaveFile}
+              className="bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-950 font-['Montserrat',sans-serif] text-xs font-semibold px-5 py-2.5 rounded-full hover:opacity-95 active:scale-95 transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Save File</span>
+            </button>
 
-            {/* Status text */}
-            <span className="font-['Montserrat',sans-serif] lowercase text-xs tracking-wide text-emerald-300 select-none">
-              {statusPhrase}
-            </span>
-
-            {/* Quick action buttons */}
-            <div className="flex items-center gap-1.5 ml-1">
+            {/* Secondary Action: Preview */}
+            {onPreview && (
               <button
                 type="button"
-                onClick={handleSaveFile}
-                className="px-3.5 py-1.5 rounded-full bg-white hover:bg-zinc-100 text-zinc-950 font-['Montserrat',sans-serif] lowercase text-xs font-medium transition-transform active:scale-95 flex items-center gap-1 cursor-pointer shadow-sm"
+                onClick={() => onPreview(activeTask)}
+                className="bg-black/5 dark:bg-white/10 text-zinc-800 dark:text-zinc-200 font-['Montserrat',sans-serif] text-xs font-medium px-4 py-2.5 rounded-full hover:bg-black/10 dark:hover:bg-white/15 transition-all flex items-center gap-1.5 cursor-pointer"
               >
-                <Download className="w-3.5 h-3.5" />
-                <span>save</span>
+                <Eye className="w-3.5 h-3.5" />
+                <span>Preview</span>
               </button>
-              {onPreview && (
-                <button
-                  type="button"
-                  onClick={() => onPreview(activeTask)}
-                  className="px-3 py-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-['Montserrat',sans-serif] lowercase text-xs font-medium transition-colors flex items-center gap-1 cursor-pointer"
-                >
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>preview</span>
-                </button>
-              )}
-            </div>
+            )}
           </motion.div>
         ) : (
-          /* ACTIVE STATE: Centered rounded-full pill with cozy micro-orb & clean casual lowercase status text */
+          /* ACTIVE STATE: Centered rounded-full pill with micro-orb & rapid randomized phrase transitions */
           <motion.div
             key="active-state"
             initial={{ opacity: 0, scale: 0.98 }}
@@ -181,15 +165,24 @@ export default function DownloadStatusOrb({
             transition={{ duration: 0.15 }}
             className="w-full max-w-md mx-auto h-12 px-6 rounded-full bg-[#111114]/90 dark:bg-zinc-900/90 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] flex items-center justify-center gap-3.5 transition-all duration-300 select-none overflow-hidden"
           >
-            {/* Clean transparent orb wrapper: w-8 h-8 shrink-0 flex items-center justify-center bg-transparent */}
+            {/* Clean transparent orb wrapper */}
             <div className="w-8 h-8 shrink-0 flex items-center justify-center bg-transparent overflow-hidden pointer-events-none">
               <ParticleMorphOrb size={32} speed={orbSpeed} />
             </div>
 
-            {/* Live status text: font-['Montserrat',sans-serif] lowercase text-xs tracking-wide text-zinc-300 select-none */}
-            <span className="font-['Montserrat',sans-serif] lowercase text-xs tracking-wide text-zinc-300 select-none">
-              {statusPhrase}
-            </span>
+            {/* Rapid randomized phrase transitions */}
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={currentPhrase}
+                initial={{ opacity: 0, y: 3 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -3 }}
+                transition={{ duration: 0.18, ease: "easeOut" }}
+                className="font-['Montserrat',sans-serif] text-sm font-medium tracking-wide text-white dark:text-zinc-100 lowercase select-none"
+              >
+                {currentPhrase}
+              </motion.span>
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>
