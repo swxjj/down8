@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import LiquidDots from './ui/liquid-dots';
+import ChromeBorderButton from './ui/chrome-border-button';
 
 export default function UrlInput({ 
   onFetch, 
@@ -116,49 +117,44 @@ export default function UrlInput({
           </button>
 
           {/* Morphing Load Button -> Splits into Two Full-Scale Liquid Dots */}
-          <div className="w-full h-11 relative flex items-center justify-center">
-            <motion.button
-              id="load-button"
-              type="submit"
-              disabled={!url.trim() || isLoading || isTraveling}
-              className={`h-11 w-full rounded-full flex items-center justify-center select-none active:scale-[0.98] relative overflow-visible transition-colors duration-200 ${
-                isLoading || isTraveling
-                  ? 'bg-transparent border-transparent shadow-none pointer-events-none cursor-default'
-                  : !url.trim()
-                    ? 'bg-black/5 dark:bg-[#27272e] text-zinc-400 dark:text-[#71717a] border border-black/5 dark:border-transparent cursor-not-allowed opacity-40'
-                    : 'bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-[#ededed] dark:hover:bg-white dark:text-[#0e0e11] shadow-sm cursor-pointer border border-transparent'
-              }`}
-            >
-              <AnimatePresence mode="wait">
-                {!isLoading && !isTraveling ? (
-                  <motion.span
-                    key="text"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15 }}
-                    className="font-medium text-sm select-none"
+          <div id="load-button" className="w-full h-11 relative flex items-center justify-center">
+            <AnimatePresence mode="wait">
+              {!isLoading && !isTraveling ? (
+                <motion.div
+                  key="chrome-load-btn"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.18 }}
+                  className="w-full h-11"
+                >
+                  <ChromeBorderButton
+                    type="submit"
+                    disabled={!url.trim()}
+                    isDark={isDark}
+                    onClick={handleLoad}
+                    className="w-full h-11"
                   >
                     Load
-                  </motion.span>
-                ) : (
-                  <motion.div
-                    key="liquid-loader"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.18 }}
-                    className="w-full h-full flex items-center justify-center pointer-events-none overflow-visible"
-                  >
-                    <LiquidDots
-                      theme={isDark ? 'dark' : 'light'}
-                      isTraveling={isTraveling}
-                      travelTarget={travelTarget}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.button>
+                  </ChromeBorderButton>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="liquid-loader"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.18 }}
+                  className="w-full h-full flex items-center justify-center pointer-events-none overflow-visible"
+                >
+                  <LiquidDots
+                    theme={isDark ? 'dark' : 'light'}
+                    isTraveling={isTraveling}
+                    travelTarget={travelTarget}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </form>

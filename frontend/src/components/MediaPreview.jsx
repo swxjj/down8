@@ -142,6 +142,7 @@ export default function MediaPreview({
         variants={block2Variants}
         initial="initial"
         animate="animate"
+        layout
         style={{ transformOrigin: 'top left' }}
         className="w-full bg-white/40 dark:bg-zinc-900/60 backdrop-blur-md border border-black/10 dark:border-white/[0.08] rounded-2xl p-4 shadow-sm text-zinc-900 dark:text-zinc-100"
       >
