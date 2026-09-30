@@ -143,6 +143,10 @@ export default function ParticleMorphOrb({
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
+    renderer.domElement.style.width = '100%';
+    renderer.domElement.style.height = '100%';
+    renderer.domElement.style.display = 'block';
+    renderer.domElement.style.pointerEvents = 'none';
     container.appendChild(renderer.domElement);
 
     const group = new THREE.Group();
@@ -246,10 +250,14 @@ export default function ParticleMorphOrb({
 
   return (
     <div
-      style={{ width: size, height: size }}
-      className={`relative flex items-center justify-center cursor-grab active:cursor-grabbing ${className}`}
+      style={{ width: size, height: size, maxWidth: size, maxHeight: size }}
+      className={`relative flex items-center justify-center overflow-hidden pointer-events-none ${className}`}
     >
-      <div ref={containerRef} className="w-full h-full flex items-center justify-center" />
+      <div
+        ref={containerRef}
+        style={{ width: size, height: size, maxWidth: size, maxHeight: size }}
+        className="w-full h-full flex items-center justify-center overflow-hidden pointer-events-none"
+      />
     </div>
   );
 }

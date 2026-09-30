@@ -89,6 +89,13 @@ export default function FormatSelector({ formats, onDownload, isDownloading, act
     }
   }, [formats]);
 
+  // Keep format section open while a download is active
+  useEffect(() => {
+    if (activeTask && !selectedType) {
+      setSelectedType(activeTask.options?.media_type === 'audio' ? 'audio' : 'video');
+    }
+  }, [activeTask, selectedType]);
+
   const currentSelectedVideo = videoList.find((v) => v.format_id === selectedVideoId) || videoList[0];
   const currentSelectedAudio = audioList.find((a) => a.format_id === selectedAudioId) || audioList[0];
 
@@ -228,6 +235,7 @@ export default function FormatSelector({ formats, onDownload, isDownloading, act
               isDownloading={isDownloading}
               activeTask={activeTask}
               onPreview={onPreview}
+              isDark={isDark}
             />
           </motion.div>
         )}
