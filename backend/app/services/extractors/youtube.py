@@ -170,8 +170,16 @@ class YouTubeExtractor(BaseExtractor):
             if not matching_videos:
                 continue
 
-            # Pick best matching video by bitrate/fps
-            best_video = max(matching_videos, key=lambda v: (v.get("tbr") or v.get("vbr") or 0, v.get("fps") or 0))
+            # Smart efficiency scoring: Prioritize modern efficient codecs (AV1, VP9)
+            # that produce 40-75% smaller file sizes with crisp visual fidelity
+            def efficiency_score(v):
+                vcodec = str(v.get("vcodec") or "").lower()
+                codec_prio = 3 if "av01" in vcodec else (2 if "vp9" in vcodec or "vp09" in vcodec else 1)
+                tbr = v.get("tbr") or v.get("vbr") or 0
+                fps = v.get("fps") or 0
+                return (codec_prio, fps, tbr)
+
+            best_video = max(matching_videos, key=efficiency_score)
 
             v_size = best_video.get("filesize") or best_video.get("filesize_approx")
             v_tbr = best_video.get("tbr") or best_video.get("vbr")
@@ -310,24 +318,52 @@ class YouTubeExtractor(BaseExtractor):
         requested_height = height_map.get(request.format_id.lower())
         if requested_height:
             fmt_str = (
-                f"bestvideo[height<={requested_height}][ext=mp4]+bestaudio[ext=m4a]/"
+                f"bestvideo[height<={requested_height}]+bestaudio[ext=m4a]/"
                 f"bestvideo[height<={requested_height}]+bestaudio/"
                 f"best[height<={requested_height}]/best"
             )
+            opts.update({
+                "format": fmt_str,
+                "format_sort": [
+                    f"res:{requested_height}",
+                    "vcodec:av01",
+                    "vcodec:vp9",
+                    "vcodec:h264",
+                    "abr",
+                    "+vbr",
+                ],
+                "merge_output_format": "mp4",
+                "postprocessors": [
+                    {
+                        "key": "FFmpegVideoRemuxer",
+                        "preferedformat": "mp4",
+                    }
+                ],
+            })
         elif request.format_id in ("best", "video"):
-            fmt_str = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best"
+            fmt_str = "bestvideo+bestaudio[ext=m4a]/bestvideo+bestaudio/best"
+            opts.update({
+                "format": fmt_str,
+                "format_sort": [
+                    "vcodec:av01",
+                    "vcodec:vp9",
+                    "vcodec:h264",
+                    "abr",
+                    "+vbr",
+                ],
+                "merge_output_format": "mp4",
+                "postprocessors": [
+                    {
+                        "key": "FFmpegVideoRemuxer",
+                        "preferedformat": "mp4",
+                    }
+                ],
+            })
         else:
             fmt_str = request.format_id
-
-        opts.update({
-            "format": fmt_str,
-            "merge_output_format": "mp4",
-            "postprocessors": [
-                {
-                    "key": "FFmpegVideoRemuxer",
-                    "preferedformat": "mp4",
-                }
-            ],
-        })
+            opts.update({
+                "format": fmt_str,
+                "merge_output_format": "mp4",
+            })
 
         return opts
