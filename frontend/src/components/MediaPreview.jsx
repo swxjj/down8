@@ -111,7 +111,7 @@ export default function MediaPreview({
         initial="initial"
         animate="animate"
         style={{ transformOrigin: 'top left' }}
-        className="w-full bg-white/40 dark:bg-zinc-900/60 backdrop-blur-md border border-black/10 dark:border-white/[0.08] rounded-2xl p-4 shadow-sm text-zinc-900 dark:text-zinc-100 flex items-center space-x-3.5"
+        className="w-full bg-white/40 dark:bg-zinc-950/70 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-2xl p-4 shadow-sm text-zinc-900 dark:text-zinc-100 flex items-center space-x-3.5"
       >
         <div className="w-14 h-11 rounded-xl overflow-hidden bg-black/5 dark:bg-zinc-950 border border-black/10 dark:border-white/10 flex-shrink-0 flex items-center justify-center">
           {thumbnail && !imageError ? (
@@ -145,7 +145,7 @@ export default function MediaPreview({
         animate="animate"
         layout
         style={{ transformOrigin: 'top left' }}
-        className="w-full bg-white/40 dark:bg-zinc-900/60 backdrop-blur-md border border-black/10 dark:border-white/[0.08] rounded-2xl p-4 shadow-sm text-zinc-900 dark:text-zinc-100"
+        className="w-full bg-white/40 dark:bg-zinc-950/70 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-2xl p-5 shadow-sm text-zinc-900 dark:text-zinc-100"
       >
         <FormatSelector
           formats={formats}
@@ -154,20 +154,8 @@ export default function MediaPreview({
           activeTask={activeTask}
           embedded
           isDark={isDark}
+          onPreview={onPreview}
         />
-
-        {activeTask?.status === 'completed' && onPreview && (
-          <div className="mt-3 flex justify-center">
-            <button
-              type="button"
-              onClick={() => onPreview(activeTask)}
-              className="text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors flex items-center space-x-1 cursor-pointer bg-transparent border-0"
-            >
-              <span>Preview in browser</span>
-              <span>&rarr;</span>
-            </button>
-          </div>
-        )}
       </motion.div>
 
     </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import Header from './components/Header';
 import UrlInput from './components/UrlInput';
 import MediaPreview from './components/MediaPreview';
@@ -428,46 +429,35 @@ export default function App() {
           <div 
             id="preview-area"
             ref={previewAreaRef}
-            className="lg:col-span-6 flex flex-col justify-start"
+            className="lg:col-span-6 flex flex-col justify-start relative min-h-[160px] w-full"
           >
-            
-            {/* Loaded Media Preview & Formats with integrated btn-4 lifecycle */}
-            {mediaInfo && !activeTask?.isZip && (
-              <MediaPreview
-                key={mediaInfo.id || mediaInfo.url || currentUrl}
-                mediaInfo={mediaInfo}
-                onDownload={handleStartDownload}
-                onDownloadItem={handleDownloadItem}
-                onDownloadZip={handleDownloadZip}
-                isDownloading={isDownloading}
-                activeTask={activeTask}
-                onPreview={handleOpenPreview}
-                isDark={isDark}
-              />
-            )}
+            <AnimatePresence mode="wait">
+              {/* Loaded Media Preview & Formats with integrated particle orb lifecycle */}
+              {mediaInfo && !activeTask?.isZip && (
+                <MediaPreview
+                  key={mediaInfo.id || mediaInfo.url || currentUrl}
+                  mediaInfo={mediaInfo}
+                  onDownload={handleStartDownload}
+                  onDownloadItem={handleDownloadItem}
+                  onDownloadZip={handleDownloadZip}
+                  isDownloading={isDownloading}
+                  activeTask={activeTask}
+                  onPreview={handleOpenPreview}
+                  isDark={isDark}
+                />
+              )}
 
-            {/* Active Download Progress Card (for ZIP archive creation or standalone tasks) */}
-            {activeTask && (!mediaInfo || activeTask.isZip) && (
-              <ProgressCard
-                task={activeTask}
-                onPreview={handleOpenPreview}
-                onDismiss={() => setActiveTask(null)}
-                onRetry={() => handleStartDownload(activeTask.options || {})}
-              />
-            )}
-
-            {/* Empty State: Symmetrically matches the Left Column with Adaptive Frosted Glass */}
-            {!mediaInfo && !activeTask && (
-              <div className="w-full min-h-[220px] bg-white/40 dark:bg-zinc-900/60 backdrop-blur-md border border-black/10 dark:border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center text-center">
-                <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
-                  preview will appear here
-                </p>
-                <p className="text-xs text-zinc-600 dark:text-zinc-400 text-center max-w-xs mt-1.5 leading-relaxed">
-                  Paste a link on the left to select audio or video and download.
-                </p>
-              </div>
-            )}
-
+              {/* Active Download Progress Card (for ZIP archive creation or standalone tasks) */}
+              {activeTask && (!mediaInfo || activeTask.isZip) && (
+                <ProgressCard
+                  key={activeTask.task_id}
+                  task={activeTask}
+                  onPreview={handleOpenPreview}
+                  onDismiss={() => setActiveTask(null)}
+                  onRetry={() => handleStartDownload(activeTask.options || {})}
+                />
+              )}
+            </AnimatePresence>
           </div>
 
         </div>

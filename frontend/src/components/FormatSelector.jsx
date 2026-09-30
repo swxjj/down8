@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Download, Film, Music, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Btn4 from './ui/btn-4';
+import DownloadStatusOrb from './DownloadStatusOrb';
 import ChromeBorderButton from './ui/chrome-border-button';
 
 function formatBytes(bytes) {
@@ -14,7 +14,7 @@ function formatBytes(bytes) {
   return `${(num / Math.pow(1024, i)).toFixed(1)} ${units[i]}`;
 }
 
-export default function FormatSelector({ formats, onDownload, isDownloading, activeTask, isDark = true }) {
+export default function FormatSelector({ formats, onDownload, isDownloading, activeTask, isDark = true, onPreview }) {
   const [selectedType, setSelectedType] = useState(null); // null | 'video' | 'audio'
 
   const defaultVideoFormats = [
@@ -162,16 +162,16 @@ export default function FormatSelector({ formats, onDownload, isDownloading, act
                         key={item.format_id}
                         type="button"
                         onClick={() => setSelectedVideoId(item.format_id)}
-                        className={`transition-all duration-150 flex flex-col items-center justify-center select-none ${
+                        className={`transition-all duration-150 flex flex-col items-center justify-center select-none text-xs rounded-xl py-2 px-3 ${
                           isSelected
-                            ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950 font-medium border border-transparent shadow-sm rounded-xl py-2 px-3 text-xs'
-                            : 'bg-black/5 text-zinc-600 dark:bg-zinc-800/40 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 border border-black/5 dark:border-white/5 rounded-xl py-2 px-3 text-xs'
+                            ? 'bg-zinc-800/90 border border-white/20 text-white shadow-[0_0_15px_rgba(255,255,255,0.06)] font-medium'
+                            : 'bg-zinc-900/70 border border-white/5 text-zinc-400 hover:border-white/15 hover:text-zinc-200 backdrop-blur-sm'
                         }`}
                         title={item.resolution}
                       >
                         <span className="font-semibold">{item.label}</span>
                         {formattedSize && (
-                          <span className={`text-[10px] font-mono mt-0.5 ${isSelected ? 'text-zinc-300 dark:text-zinc-600' : 'text-zinc-500 dark:text-zinc-500'}`}>
+                          <span className={`text-[10px] font-mono mt-0.5 ${isSelected ? 'text-zinc-300' : 'text-zinc-500'}`}>
                             {formattedSize}
                           </span>
                         )}
@@ -192,16 +192,16 @@ export default function FormatSelector({ formats, onDownload, isDownloading, act
                         key={item.format_id}
                         type="button"
                         onClick={() => setSelectedAudioId(item.format_id)}
-                        className={`transition-all duration-150 flex items-center justify-center space-x-2 select-none ${
+                        className={`transition-all duration-150 flex items-center justify-center space-x-2 select-none text-xs rounded-xl py-2 px-3 ${
                           isSelected
-                            ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950 font-medium border border-transparent shadow-sm rounded-xl py-2 px-3 text-xs'
-                            : 'bg-black/5 text-zinc-600 dark:bg-zinc-800/40 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 border border-black/5 dark:border-white/5 rounded-xl py-2 px-3 text-xs'
+                            ? 'bg-zinc-800/90 border border-white/20 text-white shadow-[0_0_15px_rgba(255,255,255,0.06)] font-medium'
+                            : 'bg-zinc-900/70 border border-white/5 text-zinc-400 hover:border-white/15 hover:text-zinc-200 backdrop-blur-sm'
                         }`}
                         title={item.note}
                       >
                         <span className="font-semibold">{item.label}</span>
                         {formattedSize && (
-                          <span className={`text-[10px] font-mono ${isSelected ? 'text-zinc-300 dark:text-zinc-600' : 'text-zinc-500 dark:text-zinc-500'}`}>
+                          <span className={`text-[10px] font-mono ${isSelected ? 'text-zinc-300' : 'text-zinc-500'}`}>
                             • {formattedSize}
                           </span>
                         )}
@@ -212,8 +212,8 @@ export default function FormatSelector({ formats, onDownload, isDownloading, act
               )}
             </div>
 
-            {/* Primary Download CTA: btn-4 from amicro */}
-            <Btn4
+            {/* Primary Download Status Container: ParticleMorphOrb */}
+            <DownloadStatusOrb
               label={
                 selectedType === 'video' 
                   ? `Download Video (${currentSelectedVideo?.label || '1080p'})` 
@@ -227,6 +227,7 @@ export default function FormatSelector({ formats, onDownload, isDownloading, act
               onClick={handleDownload}
               isDownloading={isDownloading}
               activeTask={activeTask}
+              onPreview={onPreview}
             />
           </motion.div>
         )}
