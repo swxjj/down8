@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, AlertCircle, RefreshCw, Eye } from 'lucide-react';
 import ParticleMorphOrb from './ui/ParticleMorphOrb';
 import ChromeBorderButton from './ui/chrome-border-button';
 import { triggerBrowserDownload, getDownloadUrl } from '../services/api';
 
-const PHRASES = [
+const BASE_PHRASES = [
   'parsing...',
   'downloading...',
   'almost there...',
@@ -18,8 +18,11 @@ const PHRASES = [
 /**
  * DownloadStatusOrb - RewampUI Style Particle-Morph Status Pill
  * 
- * - Full pill (`rounded-full`) with tight center alignment.
- * - Active State: 32x32 micro-orb + rapid randomized phrase transitions in Montserrat (1.3s interval).
+ * - Full pill (`rounded-full`) with zero-jitter anchored layout.
+ * - Anchored orb + fixed-width left-aligned text slot (`w-[140px]`) prevents layout shift.
+ * - High-contrast surface (`bg-zinc-950 border border-white/20 text-white font-semibold`).
+ * - Full-cycle randomized deck shuffle: every phrase appears once before repeating.
+ * - Relaxed ~3.0s pacing with 0.35s cinematic ease.
  * - Completed State: Smoothly morphs into "Save File" (Primary) and "Preview" (Secondary) buttons.
  * - ZERO automatic downloads or popups upon completion; file download triggers ONLY on "Save File" click.
  */
@@ -41,20 +44,32 @@ export default function DownloadStatusOrb({
   const isDownloadingActive = isDownloading || (status && !isCompleted && !isFailed && status !== 'idle');
   const isActive = isDownloadingActive && !isCompleted && !isFailed;
 
-  const [currentPhrase, setCurrentPhrase] = useState(PHRASES[0]);
+  // Deck shuffle queue: guarantees all 7 phrases appear before any repeats
+  const phraseQueueRef = useRef([]);
 
-  // Randomized rapid phrase transitions (every ~1.3s) without repeating immediate previous
+  const getNextPhrase = () => {
+    if (!phraseQueueRef.current || phraseQueueRef.current.length === 0) {
+      phraseQueueRef.current = [...BASE_PHRASES].sort(() => Math.random() - 0.5);
+    }
+    return phraseQueueRef.current.pop();
+  };
+
+  const [currentPhrase, setCurrentPhrase] = useState(() => getNextPhrase());
+
+  // Full-cycle phrase rotator with relaxed ~3.0s pacing
   useEffect(() => {
     if (!isActive) return;
 
-    setCurrentPhrase(PHRASES[0]);
+    // Initialize fresh shuffled deck on active start
+    phraseQueueRef.current = [...BASE_PHRASES].sort(() => Math.random() - 0.5);
+    setCurrentPhrase(phraseQueueRef.current.pop());
 
     const interval = setInterval(() => {
-      setCurrentPhrase((prev) => {
-        const remaining = PHRASES.filter((p) => p !== prev);
-        return remaining[Math.floor(Math.random() * remaining.length)];
-      });
-    }, 1300);
+      if (phraseQueueRef.current.length === 0) {
+        phraseQueueRef.current = [...BASE_PHRASES].sort(() => Math.random() - 0.5);
+      }
+      setCurrentPhrase(phraseQueueRef.current.pop());
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [isActive]);
@@ -88,7 +103,7 @@ export default function DownloadStatusOrb({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="w-full h-12"
+            className="w-full max-w-md mx-auto h-12"
           >
             <ChromeBorderButton
               onClick={onClick}
@@ -156,33 +171,37 @@ export default function DownloadStatusOrb({
             )}
           </motion.div>
         ) : (
-          /* ACTIVE STATE: Centered rounded-full pill with micro-orb & rapid randomized phrase transitions */
+          /* ACTIVE STATE: Centered rounded-full pill with locked orb & fixed-width text slot */
           <motion.div
             key="active-state"
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            className="w-full max-w-md mx-auto h-12 px-6 rounded-full bg-[#111114]/90 dark:bg-zinc-900/90 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] flex items-center justify-center gap-3.5 transition-all duration-300 select-none overflow-hidden"
+            className="w-full max-w-md mx-auto h-12 flex items-center justify-center select-none"
           >
-            {/* Clean transparent orb wrapper */}
-            <div className="w-8 h-8 shrink-0 flex items-center justify-center bg-transparent overflow-hidden pointer-events-none">
-              <ParticleMorphOrb size={32} speed={orbSpeed} />
-            </div>
+            <div className="relative flex items-center justify-center h-12 px-6 rounded-full bg-zinc-950 dark:bg-zinc-950 border border-white/20 shadow-md">
+              {/* Fixed Orb Slot - Locked Position */}
+              <div className="w-8 h-8 shrink-0 flex items-center justify-center mr-3 pointer-events-none">
+                <ParticleMorphOrb size={32} speed={orbSpeed} />
+              </div>
 
-            {/* Rapid randomized phrase transitions */}
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={currentPhrase}
-                initial={{ opacity: 0, y: 3 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -3 }}
-                transition={{ duration: 0.18, ease: "easeOut" }}
-                className="font-['Montserrat',sans-serif] text-sm font-medium tracking-wide text-white dark:text-zinc-100 lowercase select-none"
-              >
-                {currentPhrase}
-              </motion.span>
-            </AnimatePresence>
+              {/* Fixed-Width Text Slot - Absorbs all phrase length differences */}
+              <div className="w-[140px] text-left flex items-center overflow-hidden">
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={currentPhrase}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                    className="font-['Montserrat',sans-serif] text-sm font-semibold tracking-wide text-white lowercase truncate block select-none"
+                  >
+                    {currentPhrase}
+                  </motion.span>
+                </AnimatePresence>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

@@ -5,7 +5,6 @@ import UrlInput from './components/UrlInput';
 import MediaPreview from './components/MediaPreview';
 import ProgressCard from './components/ProgressCard';
 import PreviewModal from './components/PreviewModal';
-import HistoryDrawer from './components/HistoryDrawer';
 import ErrorAlert from './components/ErrorAlert';
 import TextEffect from './components/core/text-effect';
 import DarkArcBandsBackground from './components/background-gradient/dark-arc-bands-background';
@@ -16,8 +15,6 @@ import {
   startZipDownload, 
   subscribeToTaskEvents 
 } from './services/api';
-
-const STORAGE_KEY = 'down8_download_history';
 
 export default function App() {
   const [currentUrl, setCurrentUrl] = useState('');
@@ -33,18 +30,6 @@ export default function App() {
   // Download task state
   const [activeTask, setActiveTask] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  
-  // History state with lazy initializer to eliminate cascading render warnings
-  const [history, setHistory] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : [];
-    } catch (e) {
-      console.warn('Failed to load history from localStorage', e);
-      return [];
-    }
-  });
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   
   // Theme state (isDark defaults to true)
   const [isDark, setIsDark] = useState(() => {
@@ -83,41 +68,6 @@ export default function App() {
 
   // Unsubscribe ref for SSE
   const sseUnsubscribeRef = useRef(null);
-
-  // Save history to localStorage
-  const saveToHistory = (item) => {
-    setHistory((prev) => {
-      const filtered = prev.filter((h) => h.task_id !== item.task_id);
-      const updated = [item, ...filtered].slice(0, 50); // keep last 50
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      } catch (e) {
-        console.warn('Failed to persist history', e);
-      }
-      return updated;
-    });
-  };
-
-  const clearHistory = () => {
-    setHistory([]);
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch (e) {
-      console.warn('Failed to clear history', e);
-    }
-  };
-
-  const removeHistoryItem = (taskId) => {
-    setHistory((prev) => {
-      const updated = prev.filter((item) => item.task_id !== taskId);
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      } catch (e) {
-        console.warn('Failed to remove history item', e);
-      }
-      return updated;
-    });
-  };
 
   // Clean up any active SSE listener
   const cleanupSse = () => {
@@ -246,7 +196,6 @@ export default function App() {
             timestamp: Date.now(),
           };
           setActiveTask(finishedTask);
-          saveToHistory(finishedTask);
         },
         (errorMsg) => {
           setIsDownloading(false);
@@ -338,7 +287,6 @@ export default function App() {
             timestamp: Date.now(),
           };
           setActiveTask(finishedTask);
-          saveToHistory(finishedTask);
         },
         (errorMsg) => {
           setIsDownloading(false);
@@ -381,7 +329,6 @@ export default function App() {
 
       {/* Navigation Header */}
       <Header
-        onOpenHistory={() => setIsHistoryOpen(true)}
         isDark={isDark}
         toggleTheme={toggleTheme}
       />
@@ -470,15 +417,7 @@ export default function App() {
         onClose={() => setIsPreviewModalOpen(false)}
       />
 
-      {/* History Slide-over Drawer */}
-      <HistoryDrawer
-        isOpen={isHistoryOpen}
-        onClose={() => setIsHistoryOpen(false)}
-        history={history}
-        onClearHistory={clearHistory}
-        onRemoveItem={removeHistoryItem}
-        onPreviewItem={(item) => handleOpenPreview(item)}
-      />
+
 
       {/* Clean minimal spacer */}
       <footer className="py-2 relative z-10" />
